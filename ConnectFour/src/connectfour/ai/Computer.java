@@ -7,18 +7,22 @@ import connectfour.game.Player;
 
 public class Computer implements Player {
 
-	private int searchDepth;// how many moves in the future to look - 0 at tree
-							// root - TODO - make it a time constraint
-	private boolean deterministicAI;// whether the AI picks randomly between equally good moves
+	private int searchDepth;// how many moves in the future to look - 0 at tree root
+	
+	private boolean deterministicAI;// whether the AI picks randomly among equally good moves
 									// or always picks the first one
 	private long timeLimit;
+	private long initialTime;
 	private GameBoard board;
 	private double discountFactor = 0.95;// TODO - pass in a const
+	private boolean timeLimited = true;// false indicates depth limited
+	private int timeLimitedSearchDepth;// depth of a time limited move search
 
-	public Computer(GameBoard board, int searchDepth, boolean deterministicAI) {
+	public Computer(GameBoard board, boolean deterministicAI, long timeLimit, int searchDepth) {
 		this.board = board;
-		this.searchDepth = searchDepth;
 		this.deterministicAI = deterministicAI;
+		this.timeLimit = timeLimit;
+		this.searchDepth = searchDepth;
 	}
 	
 	public void setDeterministicAI(boolean deterministicAI) {
@@ -27,6 +31,14 @@ public class Computer implements Player {
 	
 	public void setTimeLimit(long timeLimit) {
 		this.timeLimit = timeLimit;
+	}
+	
+	public void setSearchDepth(int searchDepth) {
+		this.searchDepth = searchDepth;
+	}
+	
+	public void setTimeLimited(boolean timeLimited) {
+		this.timeLimited = timeLimited;
 	}
 
 	@Override
@@ -42,37 +54,61 @@ public class Computer implements Player {
 	}
 
 	public int chooseMove(int counter) {
+		if (timeLimited) {
+			return chooseMoveTimeLimited(counter);
+		}
+		else {
+			return chooseMoveDepthLimited(counter);
+		}
+	}
+	
+	private int chooseMoveDepthLimited(int counter) {
 		if (deterministicAI) {
+			System.out.println("Choosing move depth limited, det");
 			int offset = 10;
 			return negaMaxWithABPruning/*DepthDiscounting*/(0, counter, 1, Integer.MIN_VALUE + offset,
 					Integer.MAX_VALUE - offset).col;
 		}
 		else {
+			System.out.println("Choosing move depth limited, non-det");
 			return negaMaxWithRandomness/*DepthDiscounting*/(0, counter, 1).col;
 		}
 	}
 	
-	// too slow - ideally should cut off in the middle of a negaMax for a given depth
-	// and use the col value obtained from the previous iteration
-	/*
-	public int chooseMoveIterativeDeepening(int counter) {
-		long initialTime = System.currentTimeMillis();
-		this.searchDepth = 0;
+	// TODO - timeLimit should be the upper limit -> don't deepen if move is obvious
+	// i.e. simple win/loss
+	// also don't deepen if the game is over far before that depth
+	// e.g. : game is over in 42 moves, hence depth > 42 is useless
+	// try to find a tighter bound - i.e. depth past which all branches game is over
+	// time limited AI with Iterative Deepening
+	private int chooseMoveTimeLimited(int counter) {
+		initialTime = System.currentTimeMillis();
+		this.timeLimitedSearchDepth = 0;
 		int col = 0;
-		while (System.currentTimeMillis() - initialTime < timeLimit) {
-			this.searchDepth++;
+		Pair ans;
+		while (!timeIsUp()) {
+			this.timeLimitedSearchDepth++;
 			if (deterministicAI) {
+				System.out.println("Choosing move time limited, det");
 				int offset = 10;
-				col = negaMaxWithABPruning/*DepthDiscounting*//*(0, counter, 1,
-						Integer.MIN_VALUE + offset, Integer.MAX_VALUE - offset).col;
+				ans = negaMaxWithABPruningTimed/*DepthDiscounting*/(0, counter, 1,
+						Integer.MIN_VALUE + offset, Integer.MAX_VALUE - offset);
 			} else {
-				col = negaMaxWithRandomness/*DepthDiscounting*//*(0, counter,
-						1).col;
+				System.out.println("Choosing move time limited, non-det");
+				ans = negaMaxWithRandomnessTimed/*DepthDiscounting*/(0, counter,
+						1);
+			}
+			if (ans != null) {
+				col = ans.col;
+				System.out.println("Finished searching time limited depth:" + timeLimitedSearchDepth);
 			}
 		}
 		return col;
 	}
-	*/
+	
+	private boolean timeIsUp() {
+		return ((System.currentTimeMillis() - initialTime) >= timeLimit);
+	}
 
 	public static class Pair {
 		private int val;
@@ -170,6 +206,93 @@ public class Computer implements Player {
 				Pair p = negaMaxWithRandomness(depth + 1, counter, -sign);
 				int x = -p.val;
 				board.undoMove();
+
+				// adds randomness
+				if (depth == 0 && x == max) {
+					Random rand = new Random();
+					boolean replace = rand.nextBoolean();
+					if (replace) {
+						col = i;
+					}
+				}
+				// end
+				
+				if (x > max) {
+					max = x;
+					col = i;
+				}
+			}
+		}
+		return new Pair(max, col);
+	}
+	
+	// added time limit 
+	private Pair negaMaxWithABPruningTimed(int depth, int counter, int sign,
+			int alpha, int beta) {
+		if (timeIsUp()) {
+			return null;
+		}
+		if (board.gameOver() || depth == timeLimitedSearchDepth) {
+			int util = sign * board.getAnalysis(counter);
+			return new Pair(util, -1);// col doesn't matter since search depth
+										// will never be 0
+		}
+
+		int col = 0;
+		int i = 0;
+
+		while (i < 7 && alpha < beta) {
+			if (board.findDepth(i) > -1) {
+				if (sign == 1) {
+					board.placeCounter(i, counter);
+				} else {
+					board.placeCounter(i, 3 - counter);
+				}
+				Pair p = negaMaxWithABPruningTimed(depth + 1, counter, -sign, -beta,
+						-alpha);
+				board.undoMove();
+				if (p == null) {
+					return null;
+				}
+				int x = -p.val;
+		
+				if (x > alpha) {
+					alpha = x;
+					col = i;
+				}
+			}
+			i++;
+		}
+		return new Pair(alpha, col);
+	}
+	
+	// added time limit
+	private Pair negaMaxWithRandomnessTimed(int depth, int counter, int sign) {
+		if (timeIsUp()) {
+			return null;
+		}
+		if (board.gameOver() || depth == timeLimitedSearchDepth) {
+			int util = sign * board.getAnalysis(counter);
+			return new Pair(util, -1);// col doesn't matter since search depth
+										// will never be 0
+		} 
+
+		int max = Integer.MIN_VALUE;
+		int col = 0;
+
+		for (int i = 0; i < 7; i++) {
+			if (board.findDepth(i) > -1) {
+				if (sign == 1) {
+					board.placeCounter(i, counter);
+				} else {
+					board.placeCounter(i, 3 - counter);
+				}
+				Pair p = negaMaxWithRandomnessTimed(depth + 1, counter, -sign);
+				board.undoMove();
+				if (p == null) {
+					return null;
+				}
+				int x = -p.val;
 
 				// adds randomness
 				if (depth == 0 && x == max) {
