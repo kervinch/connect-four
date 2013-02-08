@@ -11,7 +11,7 @@ I have since improved it and added many new features such as:
 	-ability to reset the game
 	-more intuitive UI for selecting who goes first (also allows computer vs. computer play)
 	-refactored and improved general code quality
-	-smaller memory foorprint since now it doesn't create and populate the entire move search tree at the
+	-smaller memory footprint since now it doesn't create and populate the entire move search tree at the
 	 beginning of each move, instead it makes a move and undoes it after checking for it's value
 	-converted MiniMax algorithm to negaMax
 	-added alpha-beta pruning to negaMax
