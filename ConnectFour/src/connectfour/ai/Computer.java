@@ -31,10 +31,12 @@ public class Computer implements Player {
 	
 	public void setTimeLimit(long timeLimit) {
 		this.timeLimit = timeLimit;
+		System.out.println("timeLimit changed to=" + timeLimit);
 	}
 	
 	public void setSearchDepth(int searchDepth) {
 		this.searchDepth = searchDepth;
+		System.out.println("depthLimit changed to=" + searchDepth);
 	}
 	
 	public void setTimeLimited(boolean timeLimited) {
@@ -64,13 +66,13 @@ public class Computer implements Player {
 	
 	private int chooseMoveDepthLimited(int counter) {
 		if (deterministicAI) {
-			System.out.println("Choosing move depth limited, det");
+			System.out.println("Choosing move depth limited, det, depthLimit=" + searchDepth);
 			int offset = 10;
 			return negaMaxWithABPruning/*DepthDiscounting*/(0, counter, 1, Integer.MIN_VALUE + offset,
 					Integer.MAX_VALUE - offset).col;
 		}
 		else {
-			System.out.println("Choosing move depth limited, non-det");
+			System.out.println("Choosing move depth limited, non-det, depthLimit=" + searchDepth);
 			return negaMaxWithRandomness/*DepthDiscounting*/(0, counter, 1).col;
 		}
 	}
@@ -86,15 +88,15 @@ public class Computer implements Player {
 		this.timeLimitedSearchDepth = 0;
 		int col = 0;
 		Pair ans;
-		while (!timeIsUp()) {
+		while (!timeIsUp() && timeLimitedSearchDepth <= 42) {
 			this.timeLimitedSearchDepth++;
 			if (deterministicAI) {
-				System.out.println("Choosing move time limited, det");
+				System.out.println("Choosing move time limited, det, timeLimit=" + timeLimit);
 				int offset = 10;
 				ans = negaMaxWithABPruningTimed/*DepthDiscounting*/(0, counter, 1,
 						Integer.MIN_VALUE + offset, Integer.MAX_VALUE - offset);
 			} else {
-				System.out.println("Choosing move time limited, non-det");
+				System.out.println("Choosing move time limited, non-det, timeLimit=" + timeLimit);
 				ans = negaMaxWithRandomnessTimed/*DepthDiscounting*/(0, counter,
 						1);
 			}

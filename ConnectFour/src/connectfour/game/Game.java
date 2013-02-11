@@ -37,15 +37,17 @@ public class Game {
 	
 	private final long INITIAL_TIME_LIMIT = 1500;// time limit for a computer move in milliseconds
 	
-	private static GameBoard board;
-	private static Human human;
-	private static Computer computer;
+	private GameBoard board;
+	private Human human;
+	private Computer computer;
 
-	private static DisplayedBoard displayedBoard;
-	private static JButton[] buttonArray;
-	private static JButton compMoveButton;
-	private static JButton undoButton;
-	private static JButton resetButton;
+	private DisplayedBoard displayedBoard;
+	private JButton[] buttonArray;
+	private JButton compMoveButton;
+	private JButton undoButton;
+	private JButton resetButton;
+	private JTextField timeField;
+	private JTextField depthField;
 
 	private Game() {
 
@@ -122,49 +124,63 @@ public class Game {
 		optionButtonsTopRow.add(deterministic);
 		
 		JPanel optionButtonsBottomRow = new JPanel();
-		final JRadioButton timeLimited = new JRadioButton("TIME LIMITED");
-		timeLimited.setSelected(true);
-		timeLimited.addItemListener(new ItemListener() {
+		int textFieldLength = 6;
+		timeField = new JTextField(textFieldLength);
+		timeField.setText(String.valueOf(INITIAL_TIME_LIMIT));
+		timeField.setHorizontalAlignment(JTextField.RIGHT);
+		timeField.addActionListener(new ActionListener() {
 			@Override
-			public void itemStateChanged(ItemEvent arg0) {
-				if (timeLimited.isSelected()) {
+			public void actionPerformed(ActionEvent arg0) {
+				timeFieldAction();
+			}
+		});
+		depthField = new JTextField(textFieldLength);
+		depthField.setText(String.valueOf(INITIAL_SEARCH_DEPTH));
+		depthField.setHorizontalAlignment(JTextField.RIGHT);
+		depthField.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				depthFieldAction();
+			}
+		});
+		JLabel ms = new JLabel("ms");
+		JLabel ltNine = new JLabel("rec < 9 for non-det");// TODO - change to pop-up
+		// TODO - make moves async - i.e. cancellable/leaves an active ui
+		
+		final JRadioButton timeLimitedRadioButton = new JRadioButton("TIME LIMITED");
+		timeLimitedRadioButton.setSelected(true);
+		timeLimitedRadioButton.addItemListener(new ItemListener() {
+			@Override
+			public void itemStateChanged(ItemEvent e) {
+				if (timeLimitedRadioButton.isSelected()) {
+					timeFieldAction();
 					computer.setTimeLimited(true);
 				}
 			}
 		});
-		final JRadioButton depthLimited = new JRadioButton("DEPTH LIMITED");
-		depthLimited.addItemListener(new ItemListener() {
+		final JRadioButton depthLimitedRadioButton = new JRadioButton("DEPTH LIMITED");
+		depthLimitedRadioButton.addItemListener(new ItemListener() {
 			@Override
 			public void itemStateChanged(ItemEvent e) {
-				if (depthLimited.isSelected()) {
+				if (depthLimitedRadioButton.isSelected()) {
+					depthFieldAction();
 					computer.setTimeLimited(false);
 				}
 			}
 		});
 		
 		ButtonGroup aiSearchLimits = new ButtonGroup();
-		aiSearchLimits.add(timeLimited);
-		aiSearchLimits.add(depthLimited);
-		
-		// TODO - add text field value polling
-		int textFieldLength = 6;
-		JTextField timeField = new JTextField(textFieldLength);
-		timeField.setText(String.valueOf(INITIAL_TIME_LIMIT));
-		timeField.setHorizontalAlignment(JTextField.RIGHT);
-		JTextField depthField = new JTextField(textFieldLength);
-		depthField.setText(String.valueOf(INITIAL_SEARCH_DEPTH));
-		depthField.setHorizontalAlignment(JTextField.RIGHT);
-		JLabel ms = new JLabel("ms");
-		//JLabel ltEight = new JLabel("< 8"); TODO - needed? - should be < 9 for non-det
+		aiSearchLimits.add(timeLimitedRadioButton);
+		aiSearchLimits.add(depthLimitedRadioButton);
 		
 		JPanel timeLimitedPanel = new JPanel();
-		timeLimitedPanel.add(timeLimited);
+		timeLimitedPanel.add(timeLimitedRadioButton);
 		timeLimitedPanel.add(timeField);
 		timeLimitedPanel.add(ms);
 		JPanel depthLimitedPanel = new JPanel();
-		depthLimitedPanel.add(depthLimited);
+		depthLimitedPanel.add(depthLimitedRadioButton);
 		depthLimitedPanel.add(depthField);
-		//depthLimitedPanel.add(ltEight);
+		depthLimitedPanel.add(ltNine);
 		
 		optionButtonsBottomRow.add(timeLimitedPanel);
 		optionButtonsBottomRow.add(depthLimitedPanel);
@@ -279,6 +295,28 @@ public class Game {
 		});
 
 		return button;
+	}
+	
+	private void timeFieldAction() {
+		long timeLimit;
+		try {
+			timeLimit = Long.parseLong(timeField.getText());
+		} catch(NumberFormatException e1) {
+			timeLimit = INITIAL_TIME_LIMIT;
+			timeField.setText(String.valueOf(timeLimit));
+		}
+		computer.setTimeLimit(timeLimit);
+	}
+	
+	private void depthFieldAction() {
+		int depthLimit;
+		try {
+			depthLimit = Integer.parseInt(depthField.getText());
+		} catch(NumberFormatException e1) {
+			depthLimit = INITIAL_SEARCH_DEPTH;
+			depthField.setText(String.valueOf(depthLimit));
+		}
+		computer.setSearchDepth(depthLimit);
 	}
 
 	private void makeComputerMove(int counter) {
