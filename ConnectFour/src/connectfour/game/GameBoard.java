@@ -24,6 +24,31 @@ public class GameBoard {
 		moves = new Stack<Move>();
 		initializeBoard();
 	}
+	
+	public GameBoard deepCopy() {
+		GameBoard gb = new GameBoard();
+		copyBoard(this.board, gb.board);
+		gb.winner = this.winner;
+		gb.countersPlaced = this.countersPlaced;
+		gb.isGameOver = this.isGameOver;
+		gb.lastCounterPlaced = this.lastCounterPlaced;
+		copyMoveStack(this.moves, gb.moves);
+		return gb;
+	}
+	
+	private void copyBoard(int[][] source, int[][] destination) {
+		for (int row=0;row < 6;row++) {
+			for (int col=0;col < 7;col++) {
+				destination[row][col] = source[row][col];
+			}
+		}
+	}
+	
+	private void copyMoveStack(Stack<Move> source, Stack<Move> destination) {
+		for (Move m : source) {
+			destination.add(new Move(m.getRow(),m.getCol()));
+		}
+	}
 
 	private void initializeBoard() {
 		for (int i = 0; i < 6; i++) {

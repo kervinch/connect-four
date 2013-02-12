@@ -10,9 +10,12 @@ import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import javax.swing.BorderFactory;
 import javax.swing.ButtonGroup;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JFrame;
@@ -44,11 +47,14 @@ public class Game {
 	private DisplayedBoard displayedBoard;
 	private JButton[] buttonArray;
 	private JButton compMoveButton;
+	private JButton cancelButton;
 	private JButton undoButton;
 	private JButton resetButton;
 	private JTextField timeField;
 	private JTextField depthField;
-
+	
+	private ExecutorService executor;
+	
 	private Game() {
 
 		board = new GameBoard();
@@ -113,6 +119,17 @@ public class Game {
 			}
 		});
 		optionButtonsTopRow.add(compMoveButton);
+		
+		ImageIcon cancelIcon = new ImageIcon(getClass().getResource("/img/no_mini.png"));
+		cancelButton = new JButton(cancelIcon);
+		cancelButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				// TODO
+			}
+		});
+		cancelButton.setEnabled(false);
+		optionButtonsTopRow.add(cancelButton);
 		
 		final JCheckBox deterministic = new JCheckBox("Deterministic", INITIAL_DETERMINISTIC_AI);
 		deterministic.addItemListener(new ItemListener() {
@@ -229,6 +246,8 @@ public class Game {
 		
 		frame.add(mainPanel, BorderLayout.CENTER);
 
+		executor = Executors.newSingleThreadExecutor();
+		
 		// Put the frame on the screen
 		frame.pack();
 		frame.setVisible(true);
@@ -319,18 +338,27 @@ public class Game {
 		computer.setSearchDepth(depthLimit);
 	}
 
-	private void makeComputerMove(int counter) {
-		int answer = computer.move(computer.chooseMove(counter), counter);
-		displayedBoard.repaint();
-		undoButton.setEnabled(true);
-		resetButton.setEnabled(true);
-		if (answer == -1) {// game isn't over
-			setButtonsEnabled(true);
-		}
-		else {
-			setButtonsEnabled(false);
-			displayGameOverMessage(answer);
-		}
+	private void makeComputerMove(final int counter) {
+		
+		Runnable compMoveRunnable = new Runnable() {
+			
+			@Override
+			public void run() {
+				int answer = computer.move(computer.chooseMove(counter), counter);
+				displayedBoard.repaint();
+				undoButton.setEnabled(true);
+				resetButton.setEnabled(true);
+				if (answer == -1) {// game isn't over
+					setButtonsEnabled(true);
+				}
+				else {
+					setButtonsEnabled(false);
+					displayGameOverMessage(answer);
+				}
+			}
+		};
+		executor.execute(compMoveRunnable);
+		
 	}
 	
 	private void displayGameOverMessage(int answer) {

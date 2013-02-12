@@ -14,6 +14,7 @@ public class Computer implements Player {
 	private long timeLimit;
 	private long initialTime;
 	private GameBoard board;
+	private GameBoard boardCopy;
 	private double discountFactor = 0.95;// TODO - pass in a const
 	private boolean timeLimited = true;// false indicates depth limited
 	private int timeLimitedSearchDepth;// depth of a time limited move search
@@ -56,6 +57,7 @@ public class Computer implements Player {
 	}
 
 	public int chooseMove(int counter) {
+		boardCopy = board.deepCopy();
 		if (timeLimited) {
 			return chooseMoveTimeLimited(counter);
 		}
@@ -124,8 +126,8 @@ public class Computer implements Player {
 
 	// negaMax changes the board and undoes every move
 	private Pair negaMax(int depth, int counter, int sign) {
-		if (board.gameOver() || depth == searchDepth) {
-			int util = sign * board.getAnalysis(counter);
+		if (boardCopy.gameOver() || depth == searchDepth) {
+			int util = sign * boardCopy.getAnalysis(counter);
 			return new Pair(util, -1);// col doesn't matter since search depth
 										// will never be 0
 		} 
@@ -134,15 +136,15 @@ public class Computer implements Player {
 		int col = 0;
 
 		for (int i = 0; i < 7; i++) {
-			if (board.findDepth(i) > -1) {
+			if (boardCopy.findDepth(i) > -1) {
 				if (sign == 1) {
-					board.placeCounter(i, counter);
+					boardCopy.placeCounter(i, counter);
 				} else {
-					board.placeCounter(i, 3 - counter);
+					boardCopy.placeCounter(i, 3 - counter);
 				}
 				Pair p = negaMax(depth + 1, counter, -sign);
 				int x = -p.val;
-				board.undoMove();
+				boardCopy.undoMove();
 
 				if (x > max) {
 					max = x;
@@ -156,8 +158,8 @@ public class Computer implements Player {
 	// improved with alpha beta pruning
 	private Pair negaMaxWithABPruning(int depth, int counter, int sign,
 			int alpha, int beta) {
-		if (board.gameOver() || depth == searchDepth) {
-			int util = sign * board.getAnalysis(counter);
+		if (boardCopy.gameOver() || depth == searchDepth) {
+			int util = sign * boardCopy.getAnalysis(counter);
 			return new Pair(util, -1);// col doesn't matter since search depth
 										// will never be 0
 		}
@@ -166,16 +168,16 @@ public class Computer implements Player {
 		int i = 0;
 
 		while (i < 7 && alpha < beta) {
-			if (board.findDepth(i) > -1) {
+			if (boardCopy.findDepth(i) > -1) {
 				if (sign == 1) {
-					board.placeCounter(i, counter);
+					boardCopy.placeCounter(i, counter);
 				} else {
-					board.placeCounter(i, 3 - counter);
+					boardCopy.placeCounter(i, 3 - counter);
 				}
 				Pair p = negaMaxWithABPruning(depth + 1, counter, -sign, -beta,
 						-alpha);
 				int x = -p.val;
-				board.undoMove();
+				boardCopy.undoMove();
 		
 				if (x > alpha) {
 					alpha = x;
@@ -189,8 +191,8 @@ public class Computer implements Player {
 	
 	// added randomness
 	private Pair negaMaxWithRandomness(int depth, int counter, int sign) {
-		if (board.gameOver() || depth == searchDepth) {
-			int util = sign * board.getAnalysis(counter);
+		if (boardCopy.gameOver() || depth == searchDepth) {
+			int util = sign * boardCopy.getAnalysis(counter);
 			return new Pair(util, -1);// col doesn't matter since search depth
 										// will never be 0
 		} 
@@ -199,15 +201,15 @@ public class Computer implements Player {
 		int col = 0;
 
 		for (int i = 0; i < 7; i++) {
-			if (board.findDepth(i) > -1) {
+			if (boardCopy.findDepth(i) > -1) {
 				if (sign == 1) {
-					board.placeCounter(i, counter);
+					boardCopy.placeCounter(i, counter);
 				} else {
-					board.placeCounter(i, 3 - counter);
+					boardCopy.placeCounter(i, 3 - counter);
 				}
 				Pair p = negaMaxWithRandomness(depth + 1, counter, -sign);
 				int x = -p.val;
-				board.undoMove();
+				boardCopy.undoMove();
 
 				// adds randomness
 				if (depth == 0 && x == max) {
@@ -234,8 +236,8 @@ public class Computer implements Player {
 		if (timeIsUp()) {
 			return null;
 		}
-		if (board.gameOver() || depth == timeLimitedSearchDepth) {
-			int util = sign * board.getAnalysis(counter);
+		if (boardCopy.gameOver() || depth == timeLimitedSearchDepth) {
+			int util = sign * boardCopy.getAnalysis(counter);
 			return new Pair(util, -1);// col doesn't matter since search depth
 										// will never be 0
 		}
@@ -244,15 +246,15 @@ public class Computer implements Player {
 		int i = 0;
 
 		while (i < 7 && alpha < beta) {
-			if (board.findDepth(i) > -1) {
+			if (boardCopy.findDepth(i) > -1) {
 				if (sign == 1) {
-					board.placeCounter(i, counter);
+					boardCopy.placeCounter(i, counter);
 				} else {
-					board.placeCounter(i, 3 - counter);
+					boardCopy.placeCounter(i, 3 - counter);
 				}
 				Pair p = negaMaxWithABPruningTimed(depth + 1, counter, -sign, -beta,
 						-alpha);
-				board.undoMove();
+				boardCopy.undoMove();
 				if (p == null) {
 					return null;
 				}
@@ -273,8 +275,8 @@ public class Computer implements Player {
 		if (timeIsUp()) {
 			return null;
 		}
-		if (board.gameOver() || depth == timeLimitedSearchDepth) {
-			int util = sign * board.getAnalysis(counter);
+		if (boardCopy.gameOver() || depth == timeLimitedSearchDepth) {
+			int util = sign * boardCopy.getAnalysis(counter);
 			return new Pair(util, -1);// col doesn't matter since search depth
 										// will never be 0
 		} 
@@ -283,14 +285,14 @@ public class Computer implements Player {
 		int col = 0;
 
 		for (int i = 0; i < 7; i++) {
-			if (board.findDepth(i) > -1) {
+			if (boardCopy.findDepth(i) > -1) {
 				if (sign == 1) {
-					board.placeCounter(i, counter);
+					boardCopy.placeCounter(i, counter);
 				} else {
-					board.placeCounter(i, 3 - counter);
+					boardCopy.placeCounter(i, 3 - counter);
 				}
 				Pair p = negaMaxWithRandomnessTimed(depth + 1, counter, -sign);
-				board.undoMove();
+				boardCopy.undoMove();
 				if (p == null) {
 					return null;
 				}
@@ -318,8 +320,8 @@ public class Computer implements Player {
 	// improved with depth discounting - TODO - test/think/compare
 	private Pair negaMaxWithABPruningDepthDiscounting(int depth, int counter, int sign,
 			int alpha, int beta) {
-		if (board.gameOver() || depth == searchDepth) {
-			int util = (int) ((Math.pow(discountFactor, depth)) * sign * board.getAnalysis(counter));
+		if (boardCopy.gameOver() || depth == searchDepth) {
+			int util = (int) ((Math.pow(discountFactor, depth)) * sign * boardCopy.getAnalysis(counter));
 			return new Pair(util, -1);// col doesn't matter since search depth
 										// will never be 0
 		}
@@ -328,16 +330,16 @@ public class Computer implements Player {
 		int i = 0;
 
 		while (i < 7 && alpha < beta) {
-			if (board.findDepth(i) > -1) {
+			if (boardCopy.findDepth(i) > -1) {
 				if (sign == 1) {
-					board.placeCounter(i, counter);
+					boardCopy.placeCounter(i, counter);
 				} else {
-					board.placeCounter(i, 3 - counter);
+					boardCopy.placeCounter(i, 3 - counter);
 				}
 				Pair p = negaMaxWithABPruningDepthDiscounting(depth + 1, counter, -sign, -beta,
 						-alpha);
 				int x = -p.val;
-				board.undoMove();
+				boardCopy.undoMove();
 
 				if (x > alpha) {
 					alpha = x;
