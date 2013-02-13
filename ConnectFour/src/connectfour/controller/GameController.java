@@ -1,10 +1,6 @@
 package connectfour.controller;
 
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-
+import connectfour.common.AsyncCallback;
 import connectfour.controller.ai.Computer;
 import connectfour.model.GameBoard;
 import connectfour.view.GameView;
@@ -22,10 +18,10 @@ public class GameController {
 	
 	private Human human;
 	private Computer computer;
-	private ExecutorService executor;
+	//private ExecutorService executor;
 	
 	private GameBoard board;
-	//private GameView gv;
+	private AsyncCallback<Integer> gv;
 	
 	private GameController() {
 
@@ -34,9 +30,9 @@ public class GameController {
 		computer = new Computer(board, INIT_DET_AI,
 				INIT_TIME_LIMIT, INIT_SEARCH_DEPTH);
 		
-		executor = Executors.newSingleThreadExecutor();
+		//executor = Executors.newSingleThreadExecutor();
 		
-		new GameView(this, board, INIT_DET_AI, INIT_SEARCH_DEPTH, INIT_TIME_LIMIT);
+		gv = new GameView(this, board, INIT_DET_AI, INIT_SEARCH_DEPTH, INIT_TIME_LIMIT);
 		
 		/*
 		final GameController gc = this;
@@ -57,18 +53,16 @@ public class GameController {
 		board.undoMove();
 	}
 	
-	public Future<Integer> makeComputerMove() {
+	public void makeComputerMove(/*AsyncCallback<Integer> callback*/) {
 		
-		final int counter = 3 - board.getLastCounterPlaced();
-		Callable<Integer> compMoveCall = new Callable<Integer>() {
-			
-			@Override
-			public Integer call() throws Exception {
-				return computer.move(computer.chooseMove(counter), counter);
-			}
-		};
-		
-		return executor.submit(compMoveCall);
+		int result = -1;
+		try {
+			int counter = 3 - board.getLastCounterPlaced();
+			result = computer.move(computer.chooseMove(counter), counter);
+		} catch (Exception e) {
+			gv.onFailure(e);
+		}
+		gv.onSuccess(result);
 		
 	}
 	

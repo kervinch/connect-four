@@ -10,10 +10,8 @@ import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
-import java.util.Queue;
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import javax.swing.BorderFactory;
 import javax.swing.ButtonGroup;
@@ -27,10 +25,11 @@ import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JTextField;
 
+import connectfour.common.AsyncCallback;
 import connectfour.controller.GameController;
 import connectfour.model.GameBoard;
 
-public class GameView {
+public class GameView implements AsyncCallback<Integer> {
 
 	private DisplayedBoard displayedBoard;
 	private JButton[] buttonArray;
@@ -45,15 +44,21 @@ public class GameView {
 	private JTextField depthField;
 	
 	private GameController gc;
+	private ExecutorService executor;
+	private Runnable compMoveRunnable = new Runnable() {
+		@Override
+		public void run() {
+			gc.makeComputerMove();
+		}
+	};
 	
 	private int INIT_SEARCH_DEPTH;
 	private long INIT_TIME_LIMIT;
 	
-	private Queue<Future<Integer>> futureQueue = new ArrayBlockingQueue<Future<Integer>>(1);
-	
 	public GameView(final GameController gc, final GameBoard board, boolean INIT_DET_AI, int INIT_SEARCH_DEPTH, long INIT_TIME_LIMIT) {
 		
 		this.gc = gc;
+		executor = Executors.newSingleThreadExecutor();
 		this.INIT_SEARCH_DEPTH = INIT_SEARCH_DEPTH;
 		this.INIT_TIME_LIMIT = INIT_TIME_LIMIT;
 		
@@ -112,8 +117,7 @@ public class GameView {
 				setNonMoveCancelButtonsEnabled(false);
 				setMoveButtonsEnabled(false);
 				cancelButton.setEnabled(true);
-				Future<Integer> future = gc.makeComputerMove();
-				futureQueue.offer(future);
+				executor.execute(compMoveRunnable);
 			}
 		});
 		optionButtonsTopRow.add(compMoveButton);
@@ -247,38 +251,7 @@ public class GameView {
 		// Put the frame on the screen
 		frame.pack();
 		frame.setVisible(true);
-		
-		Thread futureDequeuer = new Thread(new Runnable() {
 
-			@Override
-			public void run() {
-				while (true) {
-					Future<Integer> future = futureQueue.poll();
-					if (future != null) {
-						try {
-							int result = future.get();
-							displayedBoard.repaint();
-							setNonMoveCancelButtonsEnabled(true);
-							cancelButton.setEnabled(false);
-							if (result == -1) {// game not over
-								setMoveButtonsEnabled(true);
-							} else {
-								setMoveButtonsEnabled(false);
-								displayGameOverMessage(result);
-							}
-						} catch (InterruptedException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						} catch (ExecutionException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						}
-					}
-				}
-			}
-		});
-		futureDequeuer.setDaemon(true);
-		futureDequeuer.start();
 	}
 	
 	private JButton createButton(final int i) {
@@ -293,8 +266,7 @@ public class GameView {
 				} else if (result == -1) {
 					setNonMoveCancelButtonsEnabled(false);
 					cancelButton.setEnabled(true);
-					Future<Integer> future = gc.makeComputerMove();
-					futureQueue.offer(future);
+					executor.execute(compMoveRunnable);
 				} else { // game over
 					displayGameOverMessage(result);
 				}
@@ -303,6 +275,22 @@ public class GameView {
 		});
 
 		return button;
+	}
+	
+	public void onSuccess(Integer result) {
+		displayedBoard.repaint();
+		setNonMoveCancelButtonsEnabled(true);
+		cancelButton.setEnabled(false);
+		if (result == -1) {// game not over
+			setMoveButtonsEnabled(true);
+		} else {
+			setMoveButtonsEnabled(false);
+			displayGameOverMessage(result);
+		}
+	}
+	
+	public void onFailure(Throwable caught) {
+		System.out.println(caught);
 	}
 	
 	private void timeFieldAction() {
