@@ -1,4 +1,6 @@
-package connectfour.game;
+package connectfour.controller;
+
+import connectfour.model.GameBoard;
 
 public class Human implements Player {
 

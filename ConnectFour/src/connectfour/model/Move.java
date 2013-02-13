@@ -1,4 +1,4 @@
-package connectfour.game;
+package connectfour.model;
 
 public class Move {
 	private int row;

@@ -1,4 +1,4 @@
-package connectfour.ui;
+package connectfour.view;
 
 import java.awt.Color;
 import java.awt.Graphics;

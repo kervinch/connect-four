@@ -1,4 +1,4 @@
-package connectfour.game;
+package connectfour.model;
 
 public enum Direction {
 

@@ -1,9 +1,9 @@
-package connectfour.ai;
+package connectfour.controller.ai;
 
 import java.util.Random;
 
-import connectfour.game.GameBoard;
-import connectfour.game.Player;
+import connectfour.controller.Player;
+import connectfour.model.GameBoard;
 
 public class Computer implements Player {
 
@@ -18,6 +18,8 @@ public class Computer implements Player {
 	private double discountFactor = 0.95;// TODO - pass in a const
 	private boolean timeLimited = true;// false indicates depth limited
 	private int timeLimitedSearchDepth;// depth of a time limited move search
+	
+	volatile boolean isStopSignaled = false;
 
 	public Computer(GameBoard board, boolean deterministicAI, long timeLimit, int searchDepth) {
 		this.board = board;
@@ -42,6 +44,11 @@ public class Computer implements Player {
 	
 	public void setTimeLimited(boolean timeLimited) {
 		this.timeLimited = timeLimited;
+	}
+	
+	public void stop() {
+		this.isStopSignaled = true;
+		System.out.println("computer stop signaled");
 	}
 
 	@Override

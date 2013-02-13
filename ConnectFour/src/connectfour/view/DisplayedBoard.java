@@ -1,4 +1,4 @@
-package connectfour.ui;
+package connectfour.view;
 
 import java.awt.Color;
 import java.awt.Graphics;
@@ -6,7 +6,7 @@ import java.awt.Rectangle;
 
 import javax.swing.JPanel;
 
-import connectfour.game.GameBoard;
+import connectfour.model.GameBoard;
 
 public class DisplayedBoard extends JPanel {
 

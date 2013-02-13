@@ -1,4 +1,4 @@
-package connectfour.game;
+package connectfour.model;
 
 import java.util.Stack;
 
