@@ -48,19 +48,21 @@ public class GameView implements AsyncCallback<Integer> {
 	private Runnable compMoveRunnable = new Runnable() {
 		@Override
 		public void run() {
-			gc.makeComputerMove();
+			gc.makeComputerMove(gv);
 		}
 	};
 	
 	private int INIT_SEARCH_DEPTH;
 	private long INIT_TIME_LIMIT;
+	private GameView gv;
 	
-	public GameView(final GameController gc, final GameBoard board, boolean INIT_DET_AI, int INIT_SEARCH_DEPTH, long INIT_TIME_LIMIT) {
+	public GameView(final GameController gc, final GameBoard board, boolean INIT_DET_AI, long INIT_TIME_LIMIT, int INIT_SEARCH_DEPTH) {
 		
+		this.gv = this;
 		this.gc = gc;
-		executor = Executors.newSingleThreadExecutor();
-		this.INIT_SEARCH_DEPTH = INIT_SEARCH_DEPTH;
 		this.INIT_TIME_LIMIT = INIT_TIME_LIMIT;
+		this.INIT_SEARCH_DEPTH = INIT_SEARCH_DEPTH;
+		executor = Executors.newSingleThreadExecutor();
 		
 		displayedBoard = new DisplayedBoard(board);
 		buttonArray = new JButton[7];

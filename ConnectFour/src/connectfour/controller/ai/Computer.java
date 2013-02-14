@@ -77,11 +77,11 @@ public class Computer {
 			System.out.println("Choosing move depth limited, det, depthLimit=" + searchDepth);
 			int offset = 10;
 			return negaMaxWithABPruning/*DepthDiscounting*/(0, counter, 1, Integer.MIN_VALUE + offset,
-					Integer.MAX_VALUE - offset).col;
+					Integer.MAX_VALUE - offset).getCol();
 		}
 		else {
 			System.out.println("Choosing move depth limited, non-det, depthLimit=" + searchDepth);
-			return negaMaxWithRandomness/*DepthDiscounting*/(0, counter, 1).col;
+			return negaMaxWithRandomness/*DepthDiscounting*/(0, counter, 1).getCol();
 		}
 	}
 	
@@ -95,7 +95,7 @@ public class Computer {
 		initialTime = System.currentTimeMillis();
 		this.timeLimitedSearchDepth = 0;
 		int col = 0;
-		Pair ans;
+		ValCol ans;
 		while (!timeIsUp() && timeLimitedSearchDepth <= 42) {
 			this.timeLimitedSearchDepth++;
 			if (deterministicAI) {
@@ -109,7 +109,7 @@ public class Computer {
 						1);
 			}
 			if (ans != null) {
-				col = ans.col;
+				col = ans.getCol();
 				System.out.println("Finished searching time limited depth:" + timeLimitedSearchDepth);
 			}
 		}
@@ -120,21 +120,11 @@ public class Computer {
 		return ((System.currentTimeMillis() - initialTime) >= timeLimit);
 	}
 
-	private static class Pair {
-		private int val;
-		private int col;// make Integer? TODO - think
-
-		public Pair(int val, int col) {
-			this.val = val;
-			this.col = col;
-		}
-	}
-
 	// negaMax changes the board and undoes every move
-	private Pair negaMax(int depth, int counter, int sign) {
+	private ValCol negaMax(int depth, int counter, int sign) {
 		if (boardCopy.gameOver() || depth == searchDepth) {
 			int util = sign * boardCopy.getAnalysis(counter);
-			return new Pair(util, -1);// col doesn't matter since search depth
+			return new ValCol(util, -1);// col doesn't matter since search depth
 										// will never be 0
 		} 
 
@@ -148,8 +138,8 @@ public class Computer {
 				} else {
 					boardCopy.placeCounter(i, 3 - counter);
 				}
-				Pair p = negaMax(depth + 1, counter, -sign);
-				int x = -p.val;
+				ValCol vc = negaMax(depth + 1, counter, -sign);
+				int x = -vc.getVal();
 				boardCopy.undoMove();
 
 				if (x > max) {
@@ -158,15 +148,15 @@ public class Computer {
 				}
 			}
 		}
-		return new Pair(max, col);
+		return new ValCol(max, col);
 	}
 
 	// improved with alpha beta pruning
-	private Pair negaMaxWithABPruning(int depth, int counter, int sign,
+	private ValCol negaMaxWithABPruning(int depth, int counter, int sign,
 			int alpha, int beta) {
 		if (boardCopy.gameOver() || depth == searchDepth) {
 			int util = sign * boardCopy.getAnalysis(counter);
-			return new Pair(util, -1);// col doesn't matter since search depth
+			return new ValCol(util, -1);// col doesn't matter since search depth
 										// will never be 0
 		}
 
@@ -180,9 +170,9 @@ public class Computer {
 				} else {
 					boardCopy.placeCounter(i, 3 - counter);
 				}
-				Pair p = negaMaxWithABPruning(depth + 1, counter, -sign, -beta,
+				ValCol vc = negaMaxWithABPruning(depth + 1, counter, -sign, -beta,
 						-alpha);
-				int x = -p.val;
+				int x = -vc.getVal();
 				boardCopy.undoMove();
 		
 				if (x > alpha) {
@@ -192,14 +182,14 @@ public class Computer {
 			}
 			i++;
 		}
-		return new Pair(alpha, col);
+		return new ValCol(alpha, col);
 	}
 	
 	// added randomness
-	private Pair negaMaxWithRandomness(int depth, int counter, int sign) {
+	private ValCol negaMaxWithRandomness(int depth, int counter, int sign) {
 		if (boardCopy.gameOver() || depth == searchDepth) {
 			int util = sign * boardCopy.getAnalysis(counter);
-			return new Pair(util, -1);// col doesn't matter since search depth
+			return new ValCol(util, -1);// col doesn't matter since search depth
 										// will never be 0
 		} 
 
@@ -213,8 +203,8 @@ public class Computer {
 				} else {
 					boardCopy.placeCounter(i, 3 - counter);
 				}
-				Pair p = negaMaxWithRandomness(depth + 1, counter, -sign);
-				int x = -p.val;
+				ValCol vc = negaMaxWithRandomness(depth + 1, counter, -sign);
+				int x = -vc.getVal();
 				boardCopy.undoMove();
 
 				// adds randomness
@@ -233,18 +223,18 @@ public class Computer {
 				}
 			}
 		}
-		return new Pair(max, col);
+		return new ValCol(max, col);
 	}
 	
 	// added time limit 
-	private Pair negaMaxWithABPruningTimed(int depth, int counter, int sign,
+	private ValCol negaMaxWithABPruningTimed(int depth, int counter, int sign,
 			int alpha, int beta) {
 		if (timeIsUp()) {
 			return null;
 		}
 		if (boardCopy.gameOver() || depth == timeLimitedSearchDepth) {
 			int util = sign * boardCopy.getAnalysis(counter);
-			return new Pair(util, -1);// col doesn't matter since search depth
+			return new ValCol(util, -1);// col doesn't matter since search depth
 										// will never be 0
 		}
 
@@ -258,13 +248,13 @@ public class Computer {
 				} else {
 					boardCopy.placeCounter(i, 3 - counter);
 				}
-				Pair p = negaMaxWithABPruningTimed(depth + 1, counter, -sign, -beta,
+				ValCol vc = negaMaxWithABPruningTimed(depth + 1, counter, -sign, -beta,
 						-alpha);
 				boardCopy.undoMove();
-				if (p == null) {
+				if (vc== null) {
 					return null;
 				}
-				int x = -p.val;
+				int x = -vc.getVal();
 		
 				if (x > alpha) {
 					alpha = x;
@@ -273,17 +263,17 @@ public class Computer {
 			}
 			i++;
 		}
-		return new Pair(alpha, col);
+		return new ValCol(alpha, col);
 	}
 	
 	// added time limit
-	private Pair negaMaxWithRandomnessTimed(int depth, int counter, int sign) {
+	private ValCol negaMaxWithRandomnessTimed(int depth, int counter, int sign) {
 		if (timeIsUp()) {
 			return null;
 		}
 		if (boardCopy.gameOver() || depth == timeLimitedSearchDepth) {
 			int util = sign * boardCopy.getAnalysis(counter);
-			return new Pair(util, -1);// col doesn't matter since search depth
+			return new ValCol(util, -1);// col doesn't matter since search depth
 										// will never be 0
 		} 
 
@@ -297,12 +287,12 @@ public class Computer {
 				} else {
 					boardCopy.placeCounter(i, 3 - counter);
 				}
-				Pair p = negaMaxWithRandomnessTimed(depth + 1, counter, -sign);
+				ValCol vc = negaMaxWithRandomnessTimed(depth + 1, counter, -sign);
 				boardCopy.undoMove();
-				if (p == null) {
+				if (vc== null) {
 					return null;
 				}
-				int x = -p.val;
+				int x = -vc.getVal();
 
 				// adds randomness
 				if (depth == 0 && x == max) {
@@ -320,15 +310,15 @@ public class Computer {
 				}
 			}
 		}
-		return new Pair(max, col);
+		return new ValCol(max, col);
 	}
 		
 	// improved with depth discounting - TODO - test/think/compare
-	private Pair negaMaxWithABPruningDepthDiscounting(int depth, int counter, int sign,
+	private ValCol negaMaxWithABPruningDepthDiscounting(int depth, int counter, int sign,
 			int alpha, int beta) {
 		if (boardCopy.gameOver() || depth == searchDepth) {
 			int util = (int) ((Math.pow(discountFactor, depth)) * sign * boardCopy.getAnalysis(counter));
-			return new Pair(util, -1);// col doesn't matter since search depth
+			return new ValCol(util, -1);// col doesn't matter since search depth
 										// will never be 0
 		}
 
@@ -342,9 +332,9 @@ public class Computer {
 				} else {
 					boardCopy.placeCounter(i, 3 - counter);
 				}
-				Pair p = negaMaxWithABPruningDepthDiscounting(depth + 1, counter, -sign, -beta,
+				ValCol vc = negaMaxWithABPruningDepthDiscounting(depth + 1, counter, -sign, -beta,
 						-alpha);
-				int x = -p.val;
+				int x = -vc.getVal();
 				boardCopy.undoMove();
 
 				if (x > alpha) {
@@ -354,7 +344,7 @@ public class Computer {
 			}
 			i++;
 		}
-		return new Pair(alpha, col);
+		return new ValCol(alpha, col);
 	}
 	
 }

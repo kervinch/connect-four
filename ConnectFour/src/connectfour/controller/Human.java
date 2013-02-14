@@ -10,7 +10,8 @@ public class Human implements Player {
 		this.board = board;
 	}
 
-	public int move(int col, int counter) {
+	public int move(int col) {
+		int counter = 3 - board.getLastCounterPlaced();
 		if (!board.placeCounter(col, counter)) {
 			return -2;// move was not successful
 		}
