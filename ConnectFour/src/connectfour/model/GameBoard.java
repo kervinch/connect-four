@@ -4,12 +4,12 @@ import java.util.Stack;
 
 public class GameBoard {
 
-	protected int[][] board;
+	private int[][] board;
 	private int winner;//0 means a draw if game is over
-	protected int countersPlaced;
+	private int countersPlaced;
 	private boolean isGameOver;
 	private int lastCounterPlaced;
-	protected Stack<Move> moves;
+	private Stack<Move> moves;
 	
 	public int getLastCounterPlaced() {
 		return lastCounterPlaced;

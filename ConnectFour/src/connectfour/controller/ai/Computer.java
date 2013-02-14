@@ -51,9 +51,9 @@ public class Computer {
 	}
 
 	public int move() {
-		
+		isStopSignaled = false;
 		boardCopy = board.deepCopy();
-		int moveCol;
+		Integer moveCol;
 		int counter = 3 - board.getLastCounterPlaced();
 		if (timeLimited) {
 			moveCol = chooseMoveTimeLimited(counter);
@@ -62,6 +62,9 @@ public class Computer {
 			moveCol = chooseMoveDepthLimited(counter);
 		}
 		
+		if (moveCol == null) {
+			return -1;// no move to make (aborted depth limited search) and thus game not over
+		}
 		if (!board.placeCounter(moveCol, counter)) {
 			throw new IllegalArgumentException(
 					"Computer chose a full/invalid column");
@@ -72,17 +75,19 @@ public class Computer {
 		return -1;// game not over
 	}
 
-	private int chooseMoveDepthLimited(int counter) {
+	private Integer chooseMoveDepthLimited(int counter) {
+		ValCol result;
 		if (deterministicAI) {
 			System.out.println("Choosing move depth limited, det, depthLimit=" + searchDepth);
 			int offset = 10;
-			return negaMaxWithABPruning/*DepthDiscounting*/(0, counter, 1, Integer.MIN_VALUE + offset,
-					Integer.MAX_VALUE - offset).getCol();
+			result = negaMaxWithABPruning/*DepthDiscounting*/(0, counter, 1, Integer.MIN_VALUE + offset,
+					Integer.MAX_VALUE - offset);
 		}
 		else {
 			System.out.println("Choosing move depth limited, non-det, depthLimit=" + searchDepth);
-			return negaMaxWithRandomness/*DepthDiscounting*/(0, counter, 1).getCol();
+			result = negaMaxWithRandomness/*DepthDiscounting*/(0, counter, 1);
 		}
+		return (result == null ? null : result.getCol());
 	}
 	
 	// TODO - timeLimit should be the upper limit -> don't deepen if move is obvious
@@ -96,7 +101,7 @@ public class Computer {
 		this.timeLimitedSearchDepth = 0;
 		int col = 0;
 		ValCol ans;
-		while (!timeIsUp() && timeLimitedSearchDepth <= 42) {
+		while (!timeIsUp() && timeLimitedSearchDepth <= 42 && !isStopSignaled) {
 			this.timeLimitedSearchDepth++;
 			if (deterministicAI) {
 				System.out.println("Choosing move time limited, det, timeLimit=" + timeLimit);
@@ -154,6 +159,9 @@ public class Computer {
 	// improved with alpha beta pruning
 	private ValCol negaMaxWithABPruning(int depth, int counter, int sign,
 			int alpha, int beta) {
+		if (isStopSignaled) {
+			return null;
+		}
 		if (boardCopy.gameOver() || depth == searchDepth) {
 			int util = sign * boardCopy.getAnalysis(counter);
 			return new ValCol(util, -1);// col doesn't matter since search depth
@@ -172,8 +180,11 @@ public class Computer {
 				}
 				ValCol vc = negaMaxWithABPruning(depth + 1, counter, -sign, -beta,
 						-alpha);
-				int x = -vc.getVal();
+				if (vc == null) {
+					return null;
+				}
 				boardCopy.undoMove();
+				int x = -vc.getVal();
 		
 				if (x > alpha) {
 					alpha = x;
@@ -187,6 +198,9 @@ public class Computer {
 	
 	// added randomness
 	private ValCol negaMaxWithRandomness(int depth, int counter, int sign) {
+		if (isStopSignaled) {
+			return null;
+		}
 		if (boardCopy.gameOver() || depth == searchDepth) {
 			int util = sign * boardCopy.getAnalysis(counter);
 			return new ValCol(util, -1);// col doesn't matter since search depth
@@ -204,8 +218,11 @@ public class Computer {
 					boardCopy.placeCounter(i, 3 - counter);
 				}
 				ValCol vc = negaMaxWithRandomness(depth + 1, counter, -sign);
-				int x = -vc.getVal();
+				if (vc == null) {
+					return null;
+				}
 				boardCopy.undoMove();
+				int x = -vc.getVal();
 
 				// adds randomness
 				if (depth == 0 && x == max) {
@@ -229,7 +246,7 @@ public class Computer {
 	// added time limit 
 	private ValCol negaMaxWithABPruningTimed(int depth, int counter, int sign,
 			int alpha, int beta) {
-		if (timeIsUp()) {
+		if (timeIsUp() || isStopSignaled) {
 			return null;
 		}
 		if (boardCopy.gameOver() || depth == timeLimitedSearchDepth) {
@@ -250,10 +267,10 @@ public class Computer {
 				}
 				ValCol vc = negaMaxWithABPruningTimed(depth + 1, counter, -sign, -beta,
 						-alpha);
-				boardCopy.undoMove();
-				if (vc== null) {
+				if (vc == null) {
 					return null;
 				}
+				boardCopy.undoMove();
 				int x = -vc.getVal();
 		
 				if (x > alpha) {
@@ -268,7 +285,7 @@ public class Computer {
 	
 	// added time limit
 	private ValCol negaMaxWithRandomnessTimed(int depth, int counter, int sign) {
-		if (timeIsUp()) {
+		if (timeIsUp() || isStopSignaled) {
 			return null;
 		}
 		if (boardCopy.gameOver() || depth == timeLimitedSearchDepth) {
@@ -288,10 +305,10 @@ public class Computer {
 					boardCopy.placeCounter(i, 3 - counter);
 				}
 				ValCol vc = negaMaxWithRandomnessTimed(depth + 1, counter, -sign);
-				boardCopy.undoMove();
-				if (vc== null) {
+				if (vc == null) {
 					return null;
 				}
+				boardCopy.undoMove();
 				int x = -vc.getVal();
 
 				// adds randomness
