@@ -104,7 +104,7 @@ public class GameView implements AsyncCallback<Integer> {
 					resetButton.setEnabled(false);
 				}
 				setMoveButtonsEnabled(true);// in case the game had ended
-				displayedBoard.repaint();
+				displayedBoard.repaint();// TODO change to push based method update UI called in model
 			}
 		});
 		undoButton.setEnabled(false);//can't undo when no moves made

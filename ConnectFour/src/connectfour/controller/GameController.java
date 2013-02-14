@@ -57,8 +57,7 @@ public class GameController {
 		
 		int result = -1;
 		try {
-			int counter = 3 - board.getLastCounterPlaced();
-			result = computer.move(computer.chooseMove(counter), counter);
+			result = computer.move();
 		} catch (Exception e) {
 			gv.onFailure(e);
 		}

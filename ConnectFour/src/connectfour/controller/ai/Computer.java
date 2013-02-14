@@ -2,10 +2,9 @@ package connectfour.controller.ai;
 
 import java.util.Random;
 
-import connectfour.controller.Player;
 import connectfour.model.GameBoard;
 
-public class Computer implements Player {
+public class Computer {
 
 	private int searchDepth;// how many moves in the future to look - 0 at tree root
 	
@@ -51,9 +50,19 @@ public class Computer implements Player {
 		System.out.println("computer stop signaled");
 	}
 
-	@Override
-	public int move(int col, int counter) {
-		if (!board.placeCounter(col, counter)) {
+	public int move() {
+		
+		boardCopy = board.deepCopy();
+		int moveCol;
+		int counter = 3 - board.getLastCounterPlaced();
+		if (timeLimited) {
+			moveCol = chooseMoveTimeLimited(counter);
+		}
+		else {
+			moveCol = chooseMoveDepthLimited(counter);
+		}
+		
+		if (!board.placeCounter(moveCol, counter)) {
 			throw new IllegalArgumentException(
 					"Computer chose a full/invalid column");
 		}
@@ -63,16 +72,6 @@ public class Computer implements Player {
 		return -1;// game not over
 	}
 
-	public int chooseMove(int counter) {
-		boardCopy = board.deepCopy();
-		if (timeLimited) {
-			return chooseMoveTimeLimited(counter);
-		}
-		else {
-			return chooseMoveDepthLimited(counter);
-		}
-	}
-	
 	private int chooseMoveDepthLimited(int counter) {
 		if (deterministicAI) {
 			System.out.println("Choosing move depth limited, det, depthLimit=" + searchDepth);
@@ -121,7 +120,7 @@ public class Computer implements Player {
 		return ((System.currentTimeMillis() - initialTime) >= timeLimit);
 	}
 
-	public static class Pair {
+	private static class Pair {
 		private int val;
 		private int col;// make Integer? TODO - think
 
