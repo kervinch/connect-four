@@ -1,7 +1,7 @@
 connect-four
 ============
 
-Connect Four game with AI in Java
+Connect Four game with AI and Swing UI in Java
 
 This started out as a final project for CIS 121 UPenn, Spring 2011.
 I have since improved it and added many new features such as:
