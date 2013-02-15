@@ -165,7 +165,7 @@ public class GameView implements AsyncCallback<Integer> {
 			}
 		});
 		JLabel ms = new JLabel("ms");
-		JLabel ltNine = new JLabel("rec < 9 for non-det");// TODO - change to pop-up
+		//JLabel ltNine = new JLabel("rec < 9 for non-det");// TODO - change to pop-up
 		// TODO - make moves async - i.e. cancellable/leaves an active ui
 		
 		timeLimitedRadioButton = new JRadioButton("TIME LIMITED");
@@ -202,7 +202,7 @@ public class GameView implements AsyncCallback<Integer> {
 		JPanel depthLimitedPanel = new JPanel();
 		depthLimitedPanel.add(depthLimitedRadioButton);
 		depthLimitedPanel.add(depthField);
-		depthLimitedPanel.add(ltNine);
+		//depthLimitedPanel.add(ltNine);
 		
 		optionButtonsBottomRow.add(timeLimitedPanel);
 		optionButtonsBottomRow.add(depthLimitedPanel);
