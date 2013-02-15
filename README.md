@@ -1,7 +1,7 @@
 connect-four
 ============
 
-Connect Four game with AI in Java
+Connect Four game with AI and Swing UI in Java
 
 This started out as a final project for CIS 121 UPenn, Spring 2011.
 I have since improved it and added many new features such as:
@@ -20,3 +20,5 @@ I have since improved it and added many new features such as:
 	-computer can be forced to make time limited moves (implemented by iterative deepening) as opposed to
 	 previously only limited by depth of the search tree. This allows the computer to explore the tree
 	 deeper as the game progresses
+	-computer chooses moves asynchronously - this stops UI freezing when computer is making a move
+	-refactored code to MVC design pattern
