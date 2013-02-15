@@ -4,6 +4,7 @@ import java.util.Random;
 
 import connectfour.model.GameBoard;
 
+@Deprecated
 public class Computer {
 
 	private int searchDepth;// how many moves in the future to look - 0 at tree root

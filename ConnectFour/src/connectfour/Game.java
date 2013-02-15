@@ -7,6 +7,7 @@ import connectfour.view.GameView;
 public class Game {
 
 	private final boolean INIT_DET_AI = true;
+	private final boolean INIT_TIME_LIMITED = true;
 	private final long INIT_TIME_LIMIT = 1500;// time limit for a computer move in milliseconds
 	private final int INIT_SEARCH_DEPTH = 8; //6 = 137257 nodes (for 1st move)[=(7^0)+(7^1)+(7^2)+(7^3)+(7^4)+(7^5)+(7^6)]
     										 //with 6 & 5 comp only game red wins (no randomness)
@@ -22,8 +23,8 @@ public class Game {
 	public Game() {
 		
 		board = new GameBoard();
-		gc = new GameController(board, INIT_DET_AI, INIT_TIME_LIMIT, INIT_SEARCH_DEPTH);
-		gv = new GameView(gc, board, INIT_DET_AI, INIT_TIME_LIMIT, INIT_SEARCH_DEPTH);
+		gc = new GameController(board, INIT_DET_AI, INIT_TIME_LIMITED, INIT_TIME_LIMIT, INIT_SEARCH_DEPTH);
+		gv = new GameView(gc, board, INIT_DET_AI, INIT_TIME_LIMITED, INIT_TIME_LIMIT, INIT_SEARCH_DEPTH);
 		
 	}
 	

@@ -1,21 +1,22 @@
 package connectfour.controller;
 
 import connectfour.common.AsyncCallback;
-import connectfour.controller.ai.Computer;
+import connectfour.controller.ai.MultiAi;
+import connectfour.controller.ai.util.Ai;
 import connectfour.model.GameBoard;
 
 public class GameController {
 
-	private Human human;
-	private Computer computer;
+	private Player human;
+	private Ai ai;
 	private GameBoard board;
 	
-	public GameController(GameBoard board, boolean INIT_DET_AI, long INIT_TIME_LIMIT, int INIT_SEARCH_DEPTH) {
+	public GameController(GameBoard board, boolean INIT_DET_AI, boolean INIT_TIME_LIMITED, long INIT_TIME_LIMIT, int INIT_DEPTH_LIMIT) {
 
 		this.board = board;
 		human = new Human(this.board);
-		computer = new Computer(this.board, INIT_DET_AI,
-				INIT_TIME_LIMIT, INIT_SEARCH_DEPTH);
+		ai = new MultiAi(this.board, INIT_DET_AI, INIT_TIME_LIMITED,
+				INIT_TIME_LIMIT, INIT_DEPTH_LIMIT);
 
 	}
 	
@@ -31,7 +32,7 @@ public class GameController {
 		
 		int result = -1;
 		try {
-			result = computer.move();
+			result = ai.move();
 		} catch (Exception e) {
 			callback.onFailure(e);
 		}
@@ -39,24 +40,24 @@ public class GameController {
 		
 	}
 	
-	public void setDeterministicAI(boolean deterministicAI) {
-		computer.setDeterministicAI(deterministicAI);
+	public void setDeterministicAi(boolean deterministicAi) {
+		ai.setDeterministic(deterministicAi);
 	}
 	
-	public void setTimeLimitedAI(boolean timeLimited) {
-		computer.setTimeLimited(timeLimited);
+	public void setTimeLimitedAi(boolean timeLimited) {
+		ai.setTimeLimited(timeLimited);
 	}
 	
-	public void setAISearchDepth(int searchDepth) {
-		computer.setSearchDepth(searchDepth);
+	public void setAiDepthLimit(int depthLimit) {
+		ai.setDepthLimit(depthLimit);
 	}
 	
-	public void setAITimeLimit(long timeLimit) {
-		computer.setTimeLimit(timeLimit);
+	public void setAiTimeLimit(long timeLimit) {
+		ai.setTimeLimit(timeLimit);
 	}
 	
-	public void cancelAIMove() {
-		computer.stop();
+	public void cancelAiMove() {
+		ai.stop();
 	}
 	
 	public int makeHumanMove(int col) {

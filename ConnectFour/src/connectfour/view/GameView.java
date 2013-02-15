@@ -52,16 +52,16 @@ public class GameView implements AsyncCallback<Integer> {
 		}
 	};
 	
-	private int INIT_SEARCH_DEPTH;
+	private int INIT_DEPTH_LIMIT;
 	private long INIT_TIME_LIMIT;
 	private GameView gv;
 	
-	public GameView(final GameController gc, final GameBoard board, boolean INIT_DET_AI, long INIT_TIME_LIMIT, int INIT_SEARCH_DEPTH) {
+	public GameView(final GameController gc, final GameBoard board, boolean INIT_DET_AI, boolean INIT_TIME_LIMITED, long INIT_TIME_LIMIT, int INIT_DEPTH_LIMIT) {
 		
 		this.gv = this;
 		this.gc = gc;
 		this.INIT_TIME_LIMIT = INIT_TIME_LIMIT;
-		this.INIT_SEARCH_DEPTH = INIT_SEARCH_DEPTH;
+		this.INIT_DEPTH_LIMIT = INIT_DEPTH_LIMIT;
 		executor = Executors.newSingleThreadExecutor();
 		
 		displayedBoard = new DisplayedBoard(board);
@@ -129,7 +129,7 @@ public class GameView implements AsyncCallback<Integer> {
 		cancelButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				gc.cancelAIMove();
+				gc.cancelAiMove();
 			}
 		});
 		cancelButton.setEnabled(false);
@@ -139,7 +139,7 @@ public class GameView implements AsyncCallback<Integer> {
 		deterministic.addItemListener(new ItemListener() {
 			@Override
 			public void itemStateChanged(ItemEvent e) {
-				gc.setDeterministicAI(deterministic.isSelected());
+				gc.setDeterministicAi(deterministic.isSelected());
 			}
 		});
 		optionButtonsTopRow.add(deterministic);
@@ -156,7 +156,7 @@ public class GameView implements AsyncCallback<Integer> {
 			}
 		});
 		depthField = new JTextField(textFieldLength);
-		depthField.setText(String.valueOf(INIT_SEARCH_DEPTH));
+		depthField.setText(String.valueOf(INIT_DEPTH_LIMIT));
 		depthField.setHorizontalAlignment(JTextField.RIGHT);
 		depthField.addActionListener(new ActionListener() {
 			@Override
@@ -169,23 +169,24 @@ public class GameView implements AsyncCallback<Integer> {
 		// TODO - make moves async - i.e. cancellable/leaves an active ui
 		
 		timeLimitedRadioButton = new JRadioButton("TIME LIMITED");
-		timeLimitedRadioButton.setSelected(true);
+		timeLimitedRadioButton.setSelected(INIT_TIME_LIMITED);
 		timeLimitedRadioButton.addItemListener(new ItemListener() {
 			@Override
 			public void itemStateChanged(ItemEvent e) {
 				if (timeLimitedRadioButton.isSelected()) {
 					timeFieldAction();
-					gc.setTimeLimitedAI(true);
+					gc.setTimeLimitedAi(true);
 				}
 			}
 		});
 		depthLimitedRadioButton = new JRadioButton("DEPTH LIMITED");
+		depthLimitedRadioButton.setSelected(!INIT_TIME_LIMITED);
 		depthLimitedRadioButton.addItemListener(new ItemListener() {
 			@Override
 			public void itemStateChanged(ItemEvent e) {
 				if (depthLimitedRadioButton.isSelected()) {
 					depthFieldAction();
-					gc.setTimeLimitedAI(false);
+					gc.setTimeLimitedAi(false);
 				}
 			}
 		});
@@ -306,7 +307,7 @@ public class GameView implements AsyncCallback<Integer> {
 			timeLimit = INIT_TIME_LIMIT;
 			timeField.setText(String.valueOf(timeLimit));
 		}
-		gc.setAITimeLimit(timeLimit);
+		gc.setAiTimeLimit(timeLimit);
 	}
 	
 	private void depthFieldAction() {
@@ -317,10 +318,10 @@ public class GameView implements AsyncCallback<Integer> {
 				throw new NumberFormatException();
 			}
 		} catch(NumberFormatException e1) {
-			depthLimit = INIT_SEARCH_DEPTH;
+			depthLimit = INIT_DEPTH_LIMIT;
 			depthField.setText(String.valueOf(depthLimit));
 		}
-		gc.setAISearchDepth(depthLimit);
+		gc.setAiDepthLimit(depthLimit);
 	}
 
 	private void displayGameOverMessage(int answer) {
