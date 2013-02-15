@@ -18,7 +18,7 @@ public class Computer {
 	private boolean timeLimited = true;// false indicates depth limited
 	private int timeLimitedSearchDepth;// depth of a time limited move search
 	
-	volatile boolean isStopSignaled = false;
+	private volatile boolean isStopSignaled = false;
 
 	public Computer(GameBoard board, boolean deterministicAI, long timeLimit, int searchDepth) {
 		this.board = board;
