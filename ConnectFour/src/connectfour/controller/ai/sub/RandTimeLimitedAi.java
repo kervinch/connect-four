@@ -3,7 +3,7 @@ package connectfour.controller.ai.sub;
 import java.util.Random;
 
 import connectfour.controller.ai.ValCol;
-import connectfour.controller.ai.abstr.AbstractTimeLimitedAi;
+import connectfour.controller.ai.abstrakt.AbstractTimeLimitedAi;
 import connectfour.model.GameBoard;
 
 public class RandTimeLimitedAi extends AbstractTimeLimitedAi {

@@ -1,4 +1,4 @@
-package connectfour.controller.ai.util;
+package connectfour.controller.ai;
 
 public interface Ai {
 

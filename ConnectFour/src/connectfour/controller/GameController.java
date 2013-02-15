@@ -1,8 +1,8 @@
 package connectfour.controller;
 
 import connectfour.common.AsyncCallback;
+import connectfour.controller.ai.Ai;
 import connectfour.controller.ai.MultiAi;
-import connectfour.controller.ai.util.Ai;
 import connectfour.model.GameBoard;
 
 public class GameController {

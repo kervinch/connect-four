@@ -3,12 +3,11 @@ package connectfour.controller.ai;
 import java.util.HashMap;
 import java.util.Map;
 
-import connectfour.controller.ai.abstr.AbstractAi;
+import connectfour.controller.ai.abstrakt.AbstractAi;
 import connectfour.controller.ai.sub.DetDepthLimitedAi;
 import connectfour.controller.ai.sub.DetTimeLimitedAi;
 import connectfour.controller.ai.sub.RandDepthLimitedAi;
 import connectfour.controller.ai.sub.RandTimeLimitedAi;
-import connectfour.controller.ai.util.Ai;
 import connectfour.model.GameBoard;
 
 public class MultiAi implements Ai {

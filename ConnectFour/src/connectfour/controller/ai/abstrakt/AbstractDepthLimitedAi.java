@@ -1,4 +1,4 @@
-package connectfour.controller.ai.abstr;
+package connectfour.controller.ai.abstrakt;
 
 import connectfour.model.GameBoard;
 

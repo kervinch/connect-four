@@ -3,7 +3,7 @@ package connectfour.controller.ai.sub;
 import java.util.Random;
 
 import connectfour.controller.ai.ValCol;
-import connectfour.controller.ai.abstr.AbstractDepthLimitedAi;
+import connectfour.controller.ai.abstrakt.AbstractDepthLimitedAi;
 import connectfour.model.GameBoard;
 
 public class RandDepthLimitedAi extends AbstractDepthLimitedAi {
