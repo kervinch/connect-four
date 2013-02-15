@@ -9,10 +9,13 @@ import connectfour.controller.ai.sub.DetTimeLimitedAi;
 import connectfour.controller.ai.sub.RandDepthLimitedAi;
 import connectfour.controller.ai.sub.RandTimeLimitedAi;
 import connectfour.controller.ai.util.Ai;
-import connectfour.controller.ai.util.AiType;
 import connectfour.model.GameBoard;
 
 public class MultiAi implements Ai {
+	
+	private enum AiType {
+		DET_TIME, DET_DEPTH, RAND_TIME, RAND_DEPTH
+	}
 	
 	private AbstractAi detDepthLimitedAi;
 	private AbstractAi detTimeLimitedAi;
@@ -21,7 +24,7 @@ public class MultiAi implements Ai {
 	
 	private boolean deterministic;
 	private boolean timeLimited;
-	private Map<AiType, AbstractAi> aiMap = new HashMap<AiType, AbstractAi>();
+	private Map<AiType, AbstractAi> aiTypeToInstanceMap = new HashMap<AiType, AbstractAi>();
 	
 	public MultiAi(GameBoard board, boolean INIT_DET_AI, boolean INIT_TIME_LIMITED,
 			long INIT_TIME_LIMIT, int INIT_DEPTH_LIMIT) {
@@ -29,10 +32,10 @@ public class MultiAi implements Ai {
 		this.detTimeLimitedAi = new DetTimeLimitedAi(board);
 		this.randDepthLimitedAi = new RandDepthLimitedAi(board);
 		this.randTimeLimitedAi = new RandTimeLimitedAi(board);
-		aiMap.put(AiType.DET_DEPTH, detDepthLimitedAi);
-		aiMap.put(AiType.DET_TIME, detTimeLimitedAi);
-		aiMap.put(AiType.RAND_DEPTH, randDepthLimitedAi);
-		aiMap.put(AiType.RAND_TIME, randTimeLimitedAi);
+		aiTypeToInstanceMap.put(AiType.DET_DEPTH, detDepthLimitedAi);
+		aiTypeToInstanceMap.put(AiType.DET_TIME, detTimeLimitedAi);
+		aiTypeToInstanceMap.put(AiType.RAND_DEPTH, randDepthLimitedAi);
+		aiTypeToInstanceMap.put(AiType.RAND_TIME, randTimeLimitedAi);
 		this.setDeterministic(INIT_DET_AI);
 		this.setTimeLimited(INIT_TIME_LIMITED);
 		this.setTimeLimit(INIT_TIME_LIMIT);
@@ -44,7 +47,7 @@ public class MultiAi implements Ai {
 	}
 	
 	private AbstractAi resolveAi() {
-		return aiMap.get(resolveAiType());
+		return aiTypeToInstanceMap.get(resolveAiType());
 	}
 	
 	private AiType resolveAiType() {
