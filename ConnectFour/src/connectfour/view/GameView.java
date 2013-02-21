@@ -29,7 +29,7 @@ import connectfour.common.AsyncCallback;
 import connectfour.controller.GameController;
 import connectfour.model.GameBoard;
 
-public class GameView implements AsyncCallback<Integer> {
+public class GameView implements AsyncCallback<Integer>, View {
 
 	private DisplayedBoard displayedBoard;
 	private JButton[] buttonArray;
@@ -263,7 +263,7 @@ public class GameView implements AsyncCallback<Integer> {
 			public void actionPerformed(ActionEvent e) {
 				setMoveButtonsEnabled(false);
 				int result = gc.makeHumanMove(i);
-				displayedBoard.repaint();
+				//displayedBoard.repaint();
 				if (result == -2) { // invalid move
 					setMoveButtonsEnabled(true);
 				} else if (result == -1) {
@@ -281,7 +281,7 @@ public class GameView implements AsyncCallback<Integer> {
 	}
 	
 	public void onSuccess(Integer result) {
-		displayedBoard.repaint();
+		//displayedBoard.repaint();
 		setNonMoveCancelButtonsEnabled(true);
 		cancelButton.setEnabled(false);
 		if (result == -1) {// game not over
@@ -352,6 +352,11 @@ public class GameView implements AsyncCallback<Integer> {
 		timeField.setEnabled(enabled);
 		depthLimitedRadioButton.setEnabled(enabled);
 		depthField.setEnabled(enabled);
+	}
+
+	@Override
+	public void onPlaceCounter() {
+		displayedBoard.repaint();
 	}
 	
 }

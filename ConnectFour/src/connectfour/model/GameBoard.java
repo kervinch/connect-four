@@ -1,6 +1,10 @@
 package connectfour.model;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Stack;
+
+import connectfour.view.View;
 
 public class GameBoard {
 
@@ -10,6 +14,7 @@ public class GameBoard {
 	private boolean isGameOver;
 	private int lastCounterPlaced;
 	private Stack<Move> moves;
+	private List<View> views;
 	
 	public int getLastCounterPlaced() {
 		return lastCounterPlaced;
@@ -23,6 +28,15 @@ public class GameBoard {
 		lastCounterPlaced = 2;
 		moves = new Stack<Move>();
 		initializeBoard();
+		views = new ArrayList<View>();
+	}
+	
+	public void addView(View gv) {
+		views.add(gv);
+	}
+	
+	public void removeView(View gv) {
+		views.remove(gv);
 	}
 	
 	public GameBoard deepCopy() {
@@ -65,6 +79,11 @@ public class GameBoard {
 		lastCounterPlaced = 2;
 		moves.removeAllElements();
 		initializeBoard();
+		/*
+		for (View view : views) {
+			view.onReset();
+		}
+		*/
 	}
 
 	public int[][] getBoard() {
@@ -92,6 +111,11 @@ public class GameBoard {
 			countersPlaced--;
 			isGameOver = false;
 			lastCounterPlaced = 3 - lastCounterPlaced;
+			/*
+			for (View view : views) {
+				view.onUndo();
+			}
+			*/
 		}
 	}
 	
@@ -117,6 +141,9 @@ public class GameBoard {
 					isGameOver = true;
 				} else if (countersPlaced == 42) {
 					isGameOver = true;
+				}
+				for (View view : views) {
+					view.onPlaceCounter();
 				}
 				return true;
 			}

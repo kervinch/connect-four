@@ -26,6 +26,8 @@ public class Game {
 		gc = new GameController(board, INIT_DET_AI, INIT_TIME_LIMITED, INIT_TIME_LIMIT, INIT_SEARCH_DEPTH);
 		gv = new GameView(gc, board, INIT_DET_AI, INIT_TIME_LIMITED, INIT_TIME_LIMIT, INIT_SEARCH_DEPTH);
 		
+		board.addView(gv);
+		
 	}
 	
 	public static void main(String[] args) {
