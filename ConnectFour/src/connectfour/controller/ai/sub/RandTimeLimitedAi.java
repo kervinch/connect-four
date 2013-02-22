@@ -1,5 +1,7 @@
 package connectfour.controller.ai.sub;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
 import connectfour.controller.ai.ValCol;
@@ -15,12 +17,11 @@ public class RandTimeLimitedAi extends AbstractTimeLimitedAi {
 	@Override
 	protected int chooseMoveTimeLimited(int counter) {
 		initialTime = System.currentTimeMillis();
-		this.timeLimitedSearchDepth = 0;
-		int col = 0;
+		this.timeLimitedSearchDepth = 1;
+		Integer col = 0;
 		ValCol ans;
 		while (!timeIsUp() && timeLimitedSearchDepth <= 42 && !isStopSignaled) {
-			this.timeLimitedSearchDepth++;
-
+			
 			System.out.println("Choosing move time limited, non-det");
 			ans = negaMaxWithRandomnessTimed/* DepthDiscounting */(0, counter,
 					1);
@@ -29,7 +30,18 @@ public class RandTimeLimitedAi extends AbstractTimeLimitedAi {
 				col = ans.getCol();
 				System.out.println("Finished searching time limited depth:"
 						+ timeLimitedSearchDepth);
+				this.timeLimitedSearchDepth++;
 			}
+		}
+		if (col == null) {
+			List<Integer> cols = new ArrayList<Integer>();
+			Random rand = new Random();
+			for (int i=0;i<7;i++) {
+				if (board.findDepth(i) > -1) {
+					cols.add(i);
+				}
+			}
+			col = cols.get(rand.nextInt(cols.size()));
 		}
 		return col;
 	}

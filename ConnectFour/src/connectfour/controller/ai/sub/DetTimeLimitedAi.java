@@ -13,11 +13,10 @@ public class DetTimeLimitedAi extends AbstractTimeLimitedAi {
 	@Override
 	protected int chooseMoveTimeLimited(int counter) {
 		initialTime = System.currentTimeMillis();
-		this.timeLimitedSearchDepth = 0;
-		int col = 0;
+		this.timeLimitedSearchDepth = 1;
+		Integer col = null;
 		ValCol ans;
 		while (!timeIsUp() && timeLimitedSearchDepth <= 42 && !isStopSignaled) {
-			this.timeLimitedSearchDepth++;
 
 			System.out.println("Choosing move time limited, det");
 			int offset = 10;
@@ -28,6 +27,15 @@ public class DetTimeLimitedAi extends AbstractTimeLimitedAi {
 				col = ans.getCol();
 				System.out.println("Finished searching time limited depth:"
 						+ timeLimitedSearchDepth);
+				this.timeLimitedSearchDepth++;
+			}
+		}
+		if (col == null) {
+			for (int i=0;i<7;i++) {
+				if (board.findDepth(i) > -1) {
+					col = i;
+					break;
+				}
 			}
 		}
 		return col;
