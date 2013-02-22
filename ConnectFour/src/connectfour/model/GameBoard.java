@@ -6,7 +6,7 @@ import java.util.Stack;
 
 import connectfour.view.View;
 
-public class GameBoard {
+public class GameBoard implements Model {
 
 	private int[][] board;
 	private int winner;//0 means a draw if game is over
@@ -31,12 +31,12 @@ public class GameBoard {
 		views = new ArrayList<View>();
 	}
 	
-	public void addView(View gv) {
-		views.add(gv);
+	public void addView(View view) {
+		views.add(view);
 	}
 	
-	public void removeView(View gv) {
-		views.remove(gv);
+	public void removeView(View view) {
+		views.remove(view);
 	}
 	
 	public GameBoard deepCopy() {
@@ -79,11 +79,9 @@ public class GameBoard {
 		lastCounterPlaced = 2;
 		moves.removeAllElements();
 		initializeBoard();
-		/*
 		for (View view : views) {
 			view.onReset();
 		}
-		*/
 	}
 
 	public int[][] getBoard() {
@@ -99,7 +97,7 @@ public class GameBoard {
 		return winner;
 	}
 
-	public int getCountersPlaced() {
+	public int getNumCountersPlaced() {
 		return countersPlaced;
 	}
 
@@ -111,11 +109,9 @@ public class GameBoard {
 			countersPlaced--;
 			isGameOver = false;
 			lastCounterPlaced = 3 - lastCounterPlaced;
-			/*
 			for (View view : views) {
 				view.onUndo();
 			}
-			*/
 		}
 	}
 	
@@ -143,7 +139,7 @@ public class GameBoard {
 					isGameOver = true;
 				}
 				for (View view : views) {
-					view.onPlaceCounter();
+					view.onCounterPlaced();
 				}
 				return true;
 			}
@@ -195,7 +191,7 @@ public class GameBoard {
 		return false;
 	}
 
-	public int countGroupSize(int row, int col, Direction dir,
+	private int countGroupSize(int row, int col, Direction dir,
 			int counter) {
 
 		if (row < 6 && row > -1 && col < 7 && col > -1

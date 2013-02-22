@@ -1,12 +1,12 @@
 package connectfour.controller;
 
-import connectfour.model.GameBoard;
+import connectfour.model.Model;
 
 public class Human implements Player {
 
-	private GameBoard board;
+	private Model board;
 
-	public Human(GameBoard board) {
+	public Human(Model board) {
 		this.board = board;
 	}
 

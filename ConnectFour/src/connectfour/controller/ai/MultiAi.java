@@ -5,7 +5,7 @@ import connectfour.controller.ai.sub.DetDepthLimitedAi;
 import connectfour.controller.ai.sub.DetTimeLimitedAi;
 import connectfour.controller.ai.sub.RandDepthLimitedAi;
 import connectfour.controller.ai.sub.RandTimeLimitedAi;
-import connectfour.model.GameBoard;
+import connectfour.model.Model;
 
 public class MultiAi implements Ai {
 
@@ -19,7 +19,7 @@ public class MultiAi implements Ai {
 	private boolean deterministic;
 	private boolean timeLimited;
 
-	public MultiAi(GameBoard board, boolean INIT_DET_AI,
+	public MultiAi(Model board, boolean INIT_DET_AI,
 			boolean INIT_TIME_LIMITED, long INIT_TIME_LIMIT,
 			int INIT_DEPTH_LIMIT) {
 		this.detDepthLimitedAi = new DetDepthLimitedAi(board);

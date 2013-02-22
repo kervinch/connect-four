@@ -2,11 +2,11 @@ package connectfour.controller.ai.sub;
 
 import connectfour.controller.ai.ValCol;
 import connectfour.controller.ai.abstrakt.AbstractDepthLimitedAi;
-import connectfour.model.GameBoard;
+import connectfour.model.Model;
 
 public class DetDepthLimitedAi extends AbstractDepthLimitedAi {
 
-	public DetDepthLimitedAi(GameBoard board) {
+	public DetDepthLimitedAi(Model board) {
 		super(board);
 	}
 

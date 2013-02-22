@@ -4,11 +4,11 @@ import java.util.Random;
 
 import connectfour.controller.ai.ValCol;
 import connectfour.controller.ai.abstrakt.AbstractDepthLimitedAi;
-import connectfour.model.GameBoard;
+import connectfour.model.Model;
 
 public class RandDepthLimitedAi extends AbstractDepthLimitedAi {
 
-	public RandDepthLimitedAi(GameBoard board) {
+	public RandDepthLimitedAi(Model board) {
 		super(board);
 	}
 

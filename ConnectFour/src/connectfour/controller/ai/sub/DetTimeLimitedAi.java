@@ -2,11 +2,11 @@ package connectfour.controller.ai.sub;
 
 import connectfour.controller.ai.ValCol;
 import connectfour.controller.ai.abstrakt.AbstractTimeLimitedAi;
-import connectfour.model.GameBoard;
+import connectfour.model.Model;
 
 public class DetTimeLimitedAi extends AbstractTimeLimitedAi {
 
-	public DetTimeLimitedAi(GameBoard board) {
+	public DetTimeLimitedAi(Model board) {
 		super(board);
 	}
 

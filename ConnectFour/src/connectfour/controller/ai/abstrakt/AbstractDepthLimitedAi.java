@@ -1,13 +1,13 @@
 package connectfour.controller.ai.abstrakt;
 
-import connectfour.model.GameBoard;
+import connectfour.model.Model;
 
 public abstract class AbstractDepthLimitedAi extends AbstractAi {
 
 	protected int depthLimit;// how many moves in the future to look - 0 at tree
 								// root
 
-	public AbstractDepthLimitedAi(GameBoard board) {
+	public AbstractDepthLimitedAi(Model board) {
 		super(board);
 	}
 

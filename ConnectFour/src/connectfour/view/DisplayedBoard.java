@@ -6,17 +6,17 @@ import java.awt.Rectangle;
 
 import javax.swing.JPanel;
 
-import connectfour.model.GameBoard;
+import connectfour.model.Model;
 
 public class DisplayedBoard extends JPanel {
 
 	private static final long serialVersionUID = 1L;
-	private GameBoard board;
+	private Model board;
 	private final double COUNTER_SIZE_FRACTION = 0.8;
 	private final Color COLOR1 = new Color(255,0,0);//RED
 	private final Color COLOR2 = new Color(255,255,0);//YELLOW
 	
-	public DisplayedBoard(GameBoard board) {
+	public DisplayedBoard(Model board) {
 		super();
 		this.board = board;	
 	}

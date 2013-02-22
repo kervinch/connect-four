@@ -25,11 +25,10 @@ import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JTextField;
 
-import connectfour.common.AsyncCallback;
-import connectfour.controller.GameController;
-import connectfour.model.GameBoard;
+import connectfour.controller.Controller;
+import connectfour.model.Model;
 
-public class GameView implements AsyncCallback<Integer>, View {
+public class GameView implements View {
 
 	private DisplayedBoard displayedBoard;
 	private JButton[] buttonArray;
@@ -43,27 +42,27 @@ public class GameView implements AsyncCallback<Integer>, View {
 	private JTextField timeField;
 	private JTextField depthField;
 	
-	private GameController gc;
+	private Controller gc;
 	private ExecutorService executor;
 	private Runnable compMoveRunnable = new Runnable() {
 		@Override
 		public void run() {
-			gc.makeComputerMove(gv);
+			gc.makeComputerMove();
 		}
 	};
 	
 	private int INIT_DEPTH_LIMIT;
 	private long INIT_TIME_LIMIT;
-	private GameView gv;
+	private Model board;
 	
-	public GameView(final GameController gc, final GameBoard board, boolean INIT_DET_AI, boolean INIT_TIME_LIMITED, long INIT_TIME_LIMIT, int INIT_DEPTH_LIMIT) {
+	public GameView(final Controller gc, Model board, boolean INIT_DET_AI, boolean INIT_TIME_LIMITED, long INIT_TIME_LIMIT, int INIT_DEPTH_LIMIT) {
 		
-		this.gv = this;
 		this.gc = gc;
+		this.board = board;
 		this.INIT_TIME_LIMIT = INIT_TIME_LIMIT;
 		this.INIT_DEPTH_LIMIT = INIT_DEPTH_LIMIT;
 		executor = Executors.newSingleThreadExecutor();
-		
+	
 		displayedBoard = new DisplayedBoard(board);
 		buttonArray = new JButton[7];
 		
@@ -87,10 +86,6 @@ public class GameView implements AsyncCallback<Integer>, View {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				gc.reset();
-				resetButton.setEnabled(false);
-				undoButton.setEnabled(false);
-				setMoveButtonsEnabled(true);// in case the game had ended
-				displayedBoard.repaint();
 			}
 		});
 		resetButton.setEnabled(false);//can't reset when no moves made
@@ -101,12 +96,6 @@ public class GameView implements AsyncCallback<Integer>, View {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				gc.undo();
-				if (board.getCountersPlaced() == 0) {
-					undoButton.setEnabled(false);
-					resetButton.setEnabled(false);
-				}
-				setMoveButtonsEnabled(true);// in case the game had ended
-				displayedBoard.repaint();// TODO change to push based method update UI called in model
 			}
 		});
 		undoButton.setEnabled(false);//can't undo when no moves made
@@ -116,9 +105,6 @@ public class GameView implements AsyncCallback<Integer>, View {
 		compMoveButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				setNonMoveCancelButtonsEnabled(false);
-				setMoveButtonsEnabled(false);
-				cancelButton.setEnabled(true);
 				executor.execute(compMoveRunnable);
 			}
 		});
@@ -165,8 +151,6 @@ public class GameView implements AsyncCallback<Integer>, View {
 			}
 		});
 		JLabel ms = new JLabel("ms");
-		//JLabel ltNine = new JLabel("rec < 9 for non-det");// TODO - change to pop-up
-		// TODO - make moves async - i.e. cancellable/leaves an active ui
 		
 		timeLimitedRadioButton = new JRadioButton("TIME LIMITED");
 		timeLimitedRadioButton.setSelected(INIT_TIME_LIMITED);
@@ -202,7 +186,6 @@ public class GameView implements AsyncCallback<Integer>, View {
 		JPanel depthLimitedPanel = new JPanel();
 		depthLimitedPanel.add(depthLimitedRadioButton);
 		depthLimitedPanel.add(depthField);
-		//depthLimitedPanel.add(ltNine);
 		
 		optionButtonsBottomRow.add(timeLimitedPanel);
 		optionButtonsBottomRow.add(depthLimitedPanel);
@@ -261,41 +244,16 @@ public class GameView implements AsyncCallback<Integer>, View {
 		JButton button = new JButton(String.valueOf(i+1));
 		button.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				setMoveButtonsEnabled(false);
-				int result = gc.makeHumanMove(i);
-				//displayedBoard.repaint();
-				if (result == -2) { // invalid move
-					setMoveButtonsEnabled(true);
-				} else if (result == -1) {
-					setNonMoveCancelButtonsEnabled(false);
-					cancelButton.setEnabled(true);
+				gc.makeHumanMove(i);
+				if (gc.getLastMoveResult() == -1) { // human chosen move was not invalid/game ending
 					executor.execute(compMoveRunnable);
-				} else { // game over
-					displayGameOverMessage(result);
 				}
 			}
 
 		});
-
 		return button;
 	}
-	
-	public void onSuccess(Integer result) {
-		//displayedBoard.repaint();
-		setNonMoveCancelButtonsEnabled(true);
-		cancelButton.setEnabled(false);
-		if (result == -1) {// game not over
-			setMoveButtonsEnabled(true);
-		} else {
-			setMoveButtonsEnabled(false);
-			displayGameOverMessage(result);
-		}
-	}
-	
-	public void onFailure(Throwable caught) {
-		System.out.println(caught);
-	}
-	
+		
 	private void timeFieldAction() {
 		long timeLimit;
 		try {
@@ -355,8 +313,60 @@ public class GameView implements AsyncCallback<Integer>, View {
 	}
 
 	@Override
-	public void onPlaceCounter() {
+	public void onCounterPlaced() {
 		displayedBoard.repaint();
+	}
+	
+	@Override
+	public void onReset() {
+		resetButton.setEnabled(false);
+		undoButton.setEnabled(false);
+		setMoveButtonsEnabled(true);// in case the game had ended
+		displayedBoard.repaint();
+	}
+	
+	@Override
+	public void onUndo() {
+		if (board.getNumCountersPlaced() == 0) {
+			undoButton.setEnabled(false);
+			resetButton.setEnabled(false);
+		}
+		setMoveButtonsEnabled(true);// in case the game had ended
+		displayedBoard.repaint();
+	}
+	
+	@Override
+	public void onComputerStartMove() {
+		setNonMoveCancelButtonsEnabled(false);
+		setMoveButtonsEnabled(false);
+		cancelButton.setEnabled(true);
+	}
+	
+	@Override
+	public void onComputerEndMove() {
+		int result = gc.getLastMoveResult();
+		setNonMoveCancelButtonsEnabled(true);
+		cancelButton.setEnabled(false);
+		if (result == -1) {// game not over
+			setMoveButtonsEnabled(true);
+		} else {
+			displayGameOverMessage(result);
+		}
+	}
+	
+	@Override
+	public void onHumanStartMove() {
+		setMoveButtonsEnabled(false);
+	}
+	
+	@Override
+	public void onHumanEndMove() {
+		int result = gc.getLastMoveResult();
+		if (result == -2 || result == -1) { // invalid move or game not over
+			setMoveButtonsEnabled(true);
+		} else { // game over
+			displayGameOverMessage(result);
+		}
 	}
 	
 }

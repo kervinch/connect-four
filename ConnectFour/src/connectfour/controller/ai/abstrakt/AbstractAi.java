@@ -1,14 +1,14 @@
 package connectfour.controller.ai.abstrakt;
 
-import connectfour.model.GameBoard;
+import connectfour.model.Model;
 
 public abstract class AbstractAi {
 
-	protected GameBoard board;
-	protected GameBoard boardCopy;
+	protected Model board;
+	protected Model boardCopy;
 	protected volatile boolean isStopSignaled = false;
 	
-	public AbstractAi(GameBoard board) {
+	public AbstractAi(Model board) {
 		this.board = board;
 	}
 	

@@ -1,23 +1,38 @@
 package connectfour.controller;
 
-import connectfour.common.AsyncCallback;
+import java.util.ArrayList;
+import java.util.List;
+
 import connectfour.controller.ai.Ai;
 import connectfour.controller.ai.MultiAi;
-import connectfour.model.GameBoard;
+import connectfour.model.Model;
+import connectfour.view.View;
 
-public class GameController {
+public class GameController implements Controller {
 
 	private Player human;
 	private Ai ai;
-	private GameBoard board;
+	private Model board;
+	private List<View> views;
+	private int lastMoveResult;
 	
-	public GameController(GameBoard board, boolean INIT_DET_AI, boolean INIT_TIME_LIMITED, long INIT_TIME_LIMIT, int INIT_DEPTH_LIMIT) {
+	public GameController(Model board, boolean INIT_DET_AI, boolean INIT_TIME_LIMITED, long INIT_TIME_LIMIT, int INIT_DEPTH_LIMIT) {
 
 		this.board = board;
 		human = new Human(this.board);
 		ai = new MultiAi(this.board, INIT_DET_AI, INIT_TIME_LIMITED,
 				INIT_TIME_LIMIT, INIT_DEPTH_LIMIT);
+		
+		views = new ArrayList<View>();
 
+	}
+	
+	public void addView(View view) {
+		views.add(view);
+	}
+	
+	public void removeView(View view) {
+		views.remove(view);
 	}
 	
 	public void reset() {
@@ -28,16 +43,22 @@ public class GameController {
 		board.undoMove();
 	}
 	
-	public void makeComputerMove(AsyncCallback<Integer> callback) {
+	public void makeComputerMove() {
 		
-		int result = -1;
-		try {
-			result = ai.move();
-		} catch (Exception e) {
-			callback.onFailure(e);
+		for (View view : views) {
+			view.onComputerStartMove();
 		}
-		callback.onSuccess(result);
 		
+		lastMoveResult = ai.move();
+		
+		for (View view : views) {
+			view.onComputerEndMove();
+		}
+		
+	}
+	
+	public int getLastMoveResult() {
+		return lastMoveResult;
 	}
 	
 	public void setDeterministicAi(boolean deterministicAi) {
@@ -60,8 +81,18 @@ public class GameController {
 		ai.stop();
 	}
 	
-	public int makeHumanMove(int col) {
-		return human.move(col);
+	public void makeHumanMove(int col) {
+		
+		for (View view : views) {
+			view.onHumanStartMove();
+		}
+		
+		lastMoveResult = human.move(col);
+		
+		for (View view : views) {
+			view.onHumanEndMove();
+		}
+		
 	}
 
 }

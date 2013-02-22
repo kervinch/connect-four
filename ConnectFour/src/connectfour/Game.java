@@ -1,8 +1,11 @@
 package connectfour;
 
+import connectfour.controller.Controller;
 import connectfour.controller.GameController;
 import connectfour.model.GameBoard;
+import connectfour.model.Model;
 import connectfour.view.GameView;
+import connectfour.view.View;
 
 public class Game {
 
@@ -16,9 +19,9 @@ public class Game {
 											 //red always starts
 											 //in general depth should be >= 4 for reliable human vs comp play
 	
-	private GameBoard board;
-	private GameView gv;
-	private GameController gc;
+	private Model board;
+	private View gv;
+	private Controller gc;
 	
 	public Game() {
 		
@@ -27,6 +30,7 @@ public class Game {
 		gv = new GameView(gc, board, INIT_DET_AI, INIT_TIME_LIMITED, INIT_TIME_LIMIT, INIT_SEARCH_DEPTH);
 		
 		board.addView(gv);
+		gc.addView(gv);
 		
 	}
 	

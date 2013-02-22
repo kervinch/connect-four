@@ -2,12 +2,18 @@ package connectfour.view;
 
 public interface View {
 
-	/*
 	void onReset();
 	
 	void onUndo();
-	*/
 	
-	void onPlaceCounter();
+	void onCounterPlaced();
+	
+	void onComputerStartMove();
+	
+	void onComputerEndMove();
+	
+	void onHumanStartMove();
+	
+	void onHumanEndMove();
 	
 }

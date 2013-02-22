@@ -1,6 +1,6 @@
 package connectfour.controller.ai.abstrakt;
 
-import connectfour.model.GameBoard;
+import connectfour.model.Model;
 
 public abstract class AbstractTimeLimitedAi extends AbstractAi {
 
@@ -8,7 +8,7 @@ public abstract class AbstractTimeLimitedAi extends AbstractAi {
 	protected long initialTime;
 	protected int timeLimitedSearchDepth;// depth of a time limited move search
 	
-	public AbstractTimeLimitedAi(GameBoard board) {
+	public AbstractTimeLimitedAi(Model board) {
 		super(board);
 	}
 	

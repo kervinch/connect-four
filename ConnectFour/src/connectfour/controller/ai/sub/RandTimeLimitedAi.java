@@ -4,11 +4,11 @@ import java.util.Random;
 
 import connectfour.controller.ai.ValCol;
 import connectfour.controller.ai.abstrakt.AbstractTimeLimitedAi;
-import connectfour.model.GameBoard;
+import connectfour.model.Model;
 
 public class RandTimeLimitedAi extends AbstractTimeLimitedAi {
 
-	public RandTimeLimitedAi(GameBoard board) {
+	public RandTimeLimitedAi(Model board) {
 		super(board);
 	}
 
