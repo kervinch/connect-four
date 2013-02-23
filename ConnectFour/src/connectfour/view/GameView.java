@@ -24,6 +24,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JTextField;
+import javax.swing.SwingUtilities;
 
 import connectfour.controller.Controller;
 import connectfour.model.Model;
@@ -320,59 +321,87 @@ public class GameView implements View {
 
 	@Override
 	public void onCounterPlaced() {
-		displayedBoard.repaint();
+		SwingUtilities.invokeLater(new Runnable() {
+			public void run() {
+				displayedBoard.repaint();
+			}
+		});
 	}
 	
 	@Override
 	public void onReset() {
-		resetButton.setEnabled(false);
-		undoButton.setEnabled(false);
-		setMoveButtonsEnabled(true);// in case the game had ended
-		displayedBoard.repaint();
+		SwingUtilities.invokeLater(new Runnable() {
+			public void run() {
+				resetButton.setEnabled(false);
+				undoButton.setEnabled(false);
+				setMoveButtonsEnabled(true);// in case the game had ended
+				displayedBoard.repaint();
+			}
+		});
 	}
 	
 	@Override
 	public void onUndo() {
-		if (board.getNumCountersPlaced() == 0) {
-			undoButton.setEnabled(false);
-			resetButton.setEnabled(false);
-		}
-		setMoveButtonsEnabled(true);// in case the game had ended
-		displayedBoard.repaint();
+		SwingUtilities.invokeLater(new Runnable() {
+			public void run() {
+				if (board.getNumCountersPlaced() == 0) {
+					undoButton.setEnabled(false);
+					resetButton.setEnabled(false);
+				}
+				setMoveButtonsEnabled(true);// in case the game had ended
+				displayedBoard.repaint();
+			}
+		});
 	}
 	
 	@Override
 	public void onComputerStartMove() {
-		setNonMoveCancelButtonsEnabled(false);
-		setMoveButtonsEnabled(false);
-		cancelButton.setEnabled(true);
+		SwingUtilities.invokeLater(new Runnable() {
+			public void run() {
+				setNonMoveCancelButtonsEnabled(false);
+				setMoveButtonsEnabled(false);
+				cancelButton.setEnabled(true);
+			}
+		});
 	}
 	
 	@Override
 	public void onComputerEndMove() {
-		int result = gc.getLastMoveResult();
-		setNonMoveCancelButtonsEnabled(true);
-		cancelButton.setEnabled(false);
-		if (result == -1) {// game not over
-			setMoveButtonsEnabled(true);
-		} else {
-			displayGameOverMessage(result);
-		}
+		SwingUtilities.invokeLater(new Runnable() {
+			public void run() {
+				int result = gc.getLastMoveResult();
+				setNonMoveCancelButtonsEnabled(true);
+				cancelButton.setEnabled(false);
+				if (result == -1) {// game not over
+					setMoveButtonsEnabled(true);
+				} else {
+					displayGameOverMessage(result);
+				}
+			}
+		});
 	}
 	
 	@Override
 	public void onHumanStartMove() {
-		setMoveButtonsEnabled(false);
+		SwingUtilities.invokeLater(new Runnable() {
+			public void run() {
+				setMoveButtonsEnabled(false);
+			}
+		});
 	}
 	
 	@Override
 	public void onHumanEndMove() {
-		int result = gc.getLastMoveResult();
-		if (result == -2 || result == -1) { // invalid move or game not over
-			setMoveButtonsEnabled(true);
-		} else { // game over
-			displayGameOverMessage(result);
-		}
+		SwingUtilities.invokeLater(new Runnable() {
+			public void run() {
+				int result = gc.getLastMoveResult();
+				if (result == -2 || result == -1) { // invalid move or game not over
+					setMoveButtonsEnabled(true);
+				} else { // game over
+					displayGameOverMessage(result);
+				}
+			}
+		});
 	}
 	
 }
