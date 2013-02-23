@@ -3,15 +3,15 @@ package connectfour.controller;
 import java.util.ArrayList;
 import java.util.List;
 
-import connectfour.controller.ai.Ai;
 import connectfour.controller.ai.MultiAi;
+import connectfour.controller.ai.MultiAiImpl;
 import connectfour.model.Model;
 import connectfour.view.View;
 
 public class GameController implements Controller {
 
 	private Player human;
-	private Ai ai;
+	private MultiAi ai;
 	private Model board;
 	private List<View> views;
 	private int lastMoveResult;
@@ -20,7 +20,7 @@ public class GameController implements Controller {
 
 		this.board = board;
 		human = new Human(this.board);
-		ai = new MultiAi(this.board, INIT_DET_AI, INIT_TIME_LIMITED,
+		ai = new MultiAiImpl(this.board, INIT_DET_AI, INIT_TIME_LIMITED,
 				INIT_TIME_LIMIT, INIT_DEPTH_LIMIT);
 		
 		views = new ArrayList<View>();

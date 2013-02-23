@@ -6,12 +6,4 @@ public interface Ai {
 	
 	void stop();
 	
-	void setDeterministic(boolean deterministic);
-	
-	void setTimeLimited(boolean timeLimited);
-	
-	void setTimeLimit(long timeLimit);
-	
-	void setDepthLimit(int depthLimit);
-	
 }

@@ -1,8 +1,9 @@
 package connectfour.controller.ai.abstrakt;
 
+import connectfour.controller.ai.Ai;
 import connectfour.model.Model;
 
-public abstract class AbstractAi {
+public abstract class AbstractAi implements Ai {
 
 	protected Model board;
 	protected Model boardCopy;
