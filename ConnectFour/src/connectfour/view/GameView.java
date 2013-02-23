@@ -55,6 +55,7 @@ public class GameView implements View {
 	
 	private int INIT_DEPTH_LIMIT;
 	private long INIT_TIME_LIMIT;
+	
 	private Model board;
 	
 	public GameView(final Controller gc, Model board, boolean INIT_DET_AI, boolean INIT_TIME_LIMITED, long INIT_TIME_LIMIT, int INIT_DEPTH_LIMIT) {
@@ -232,17 +233,18 @@ public class GameView implements View {
 	
 	private JButton createButton(final int i) {
 		JButton button = new JButton(String.valueOf(i+1));
-		button.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				gc.makeHumanMove(i);
-				if (gc.getLastMoveResult() == -1) { // human chosen move was not invalid/game ending
-					executor.execute(compMoveRunnable);
-				}
-			}
-
-		});
+		button.addActionListener(humanMoveButtonActionListener);
 		return button;
 	}
+	
+	private ActionListener humanMoveButtonActionListener = new ActionListener() {
+		public void actionPerformed(ActionEvent e) {
+			gc.makeHumanMove(Integer.parseInt(e.getActionCommand())-1);
+			if (gc.getLastMoveResult() == -1) { // human chosen move was not invalid/game ending
+				executor.execute(compMoveRunnable);
+			}
+		}
+	};
 		
 	private void timeLimitFieldAction() {
 		long timeLimit;
