@@ -6,8 +6,8 @@ import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
-import java.awt.event.ComponentListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.util.concurrent.ExecutorService;
@@ -205,30 +205,12 @@ public class GameView implements View {
 		displayedBoard.setPreferredSize(new Dimension(598, 516));//600, 510
 		displayedBoard.setBackground(new Color(0,0,102));//DARK BLUE
 
-		displayedBoard.addComponentListener(new ComponentListener () {
-
-			@Override
-			public void componentHidden(ComponentEvent arg0) {
-				
-			}
-
-			@Override
-			public void componentMoved(ComponentEvent arg0) {
-				
-			}
-
+		displayedBoard.addComponentListener(new ComponentAdapter () {
 			@Override
 			public void componentResized(ComponentEvent arg0) {
 				displayedBoard.repaint();
 			}
-
-			@Override
-			public void componentShown(ComponentEvent arg0) {
-				
-			}
-				
 		});
-		
 		
 		// create panel to hold all of above
 		JPanel mainPanel = new JPanel();
