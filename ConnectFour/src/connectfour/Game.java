@@ -1,5 +1,7 @@
 package connectfour;
 
+import javax.swing.SwingUtilities;
+
 import connectfour.controller.Controller;
 import connectfour.controller.GameController;
 import connectfour.model.GameBoard;
@@ -35,20 +37,12 @@ public class Game {
 	}
 	
 	public static void main(String[] args) {
-		/*
+		
 		SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
 				new Game();
 			}
 		});
-		*/
-		/*
-		new Thread(new Runnable() {
-			public void run() {
-				new Game();
-			}
-		}).start();
-		*/
-		new Game();
+
 	}
 }
