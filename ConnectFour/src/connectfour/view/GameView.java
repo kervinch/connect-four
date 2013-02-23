@@ -162,7 +162,7 @@ public class GameView implements View {
 		timeLimitedRadioButton.addItemListener(new ItemListener() {
 			@Override
 			public void itemStateChanged(ItemEvent e) {
-				if (timeLimitedRadioButton.isSelected()) {
+				if (ItemEvent.SELECTED == e.getStateChange()) {
 					timeLimitFieldAction();
 					gc.setTimeLimitedAi(true);
 				}
@@ -174,7 +174,7 @@ public class GameView implements View {
 		depthLimitedRadioButton.addItemListener(new ItemListener() {
 			@Override
 			public void itemStateChanged(ItemEvent e) {
-				if (depthLimitedRadioButton.isSelected()) {
+				if (ItemEvent.SELECTED == e.getStateChange()) {
 					depthLimitFieldAction();
 					gc.setTimeLimitedAi(false);
 				}
@@ -319,89 +319,112 @@ public class GameView implements View {
 		depthLimitField.setEnabled(enabled);
 	}
 
+	private void executeOnEdt(Runnable r) {
+		if (SwingUtilities.isEventDispatchThread()) {
+			r.run();
+		} else {
+			SwingUtilities.invokeLater(r);
+		}
+	}
+	
+	private Runnable counterPlacedRunnable = new Runnable() {
+		@Override
+		public void run() {
+			displayedBoard.repaint();
+		}
+	};
+	
 	@Override
 	public void onCounterPlaced() {
-		SwingUtilities.invokeLater(new Runnable() {
-			public void run() {
-				displayedBoard.repaint();
-			}
-		});
+		executeOnEdt(counterPlacedRunnable);
 	}
+	
+	private Runnable resetRunnable = new Runnable() {
+		public void run() {
+			resetButton.setEnabled(false);
+			undoButton.setEnabled(false);
+			setMoveButtonsEnabled(true);// in case the game had ended
+			displayedBoard.repaint();
+		}
+	};
 	
 	@Override
 	public void onReset() {
-		SwingUtilities.invokeLater(new Runnable() {
-			public void run() {
-				resetButton.setEnabled(false);
-				undoButton.setEnabled(false);
-				setMoveButtonsEnabled(true);// in case the game had ended
-				displayedBoard.repaint();
-			}
-		});
+		executeOnEdt(resetRunnable);
 	}
+
+	private Runnable undoRunnable = new Runnable() {
+		public void run() {
+			if (board.getNumCountersPlaced() == 0) {
+				undoButton.setEnabled(false);
+				resetButton.setEnabled(false);
+			}
+			setMoveButtonsEnabled(true);// in case the game had ended
+			displayedBoard.repaint();
+		}
+	};
 	
 	@Override
 	public void onUndo() {
-		SwingUtilities.invokeLater(new Runnable() {
-			public void run() {
-				if (board.getNumCountersPlaced() == 0) {
-					undoButton.setEnabled(false);
-					resetButton.setEnabled(false);
-				}
-				setMoveButtonsEnabled(true);// in case the game had ended
-				displayedBoard.repaint();
-			}
-		});
+		executeOnEdt(undoRunnable);
 	}
+	
+	private Runnable computerStartMoveRunnable = new Runnable() {
+		public void run() {
+			setNonMoveCancelButtonsEnabled(false);
+			setMoveButtonsEnabled(false);
+			cancelButton.setEnabled(true);
+		}
+	};
 	
 	@Override
 	public void onComputerStartMove() {
-		SwingUtilities.invokeLater(new Runnable() {
-			public void run() {
-				setNonMoveCancelButtonsEnabled(false);
-				setMoveButtonsEnabled(false);
-				cancelButton.setEnabled(true);
-			}
-		});
+		executeOnEdt(computerStartMoveRunnable);
 	}
+	
+	private Runnable computerEndMoveRunnable = new Runnable() {
+		public void run() {
+			int result = gc.getLastMoveResult();
+			setNonMoveCancelButtonsEnabled(true);
+			cancelButton.setEnabled(false);
+			if (result == -1) {// game not over
+				setMoveButtonsEnabled(true);
+			} else {
+				displayGameOverMessage(result);
+			}
+		}
+	};
 	
 	@Override
 	public void onComputerEndMove() {
-		SwingUtilities.invokeLater(new Runnable() {
-			public void run() {
-				int result = gc.getLastMoveResult();
-				setNonMoveCancelButtonsEnabled(true);
-				cancelButton.setEnabled(false);
-				if (result == -1) {// game not over
-					setMoveButtonsEnabled(true);
-				} else {
-					displayGameOverMessage(result);
-				}
-			}
-		});
+		executeOnEdt(computerEndMoveRunnable);
 	}
+	
+	private Runnable humanStartMoveRunnable = new Runnable() {
+		public void run() {
+			setMoveButtonsEnabled(false);
+		}
+	};
 	
 	@Override
 	public void onHumanStartMove() {
-		SwingUtilities.invokeLater(new Runnable() {
-			public void run() {
-				setMoveButtonsEnabled(false);
-			}
-		});
+		executeOnEdt(humanStartMoveRunnable);
 	}
+	
+	private Runnable humanEndMoveRunnable = new Runnable() {
+		public void run() {
+			int result = gc.getLastMoveResult();
+			if (result == -2 || result == -1) { // invalid move or game not over
+				setMoveButtonsEnabled(true);
+			} else { // game over
+				displayGameOverMessage(result);
+			}
+		}
+	};
 	
 	@Override
 	public void onHumanEndMove() {
-		SwingUtilities.invokeLater(new Runnable() {
-			public void run() {
-				int result = gc.getLastMoveResult();
-				if (result == -2 || result == -1) { // invalid move or game not over
-					setMoveButtonsEnabled(true);
-				} else { // game over
-					displayGameOverMessage(result);
-				}
-			}
-		});
+		executeOnEdt(humanEndMoveRunnable);
 	}
 	
 }
