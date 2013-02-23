@@ -39,8 +39,8 @@ public class GameView implements View {
 	private JCheckBox deterministic;
 	private JRadioButton timeLimitedRadioButton;
 	private JRadioButton depthLimitedRadioButton;
-	private JTextField timeField;
-	private JTextField depthField;
+	private JTextField timeLimitField;
+	private JTextField depthLimitField;
 	
 	private Controller gc;
 	private ExecutorService executor;
@@ -128,29 +128,33 @@ public class GameView implements View {
 				gc.setDeterministicAi(deterministic.isSelected());
 			}
 		});
+		deterministic.setToolTipText("If unchecked the computer chooses randomly from among equally good moves");
 		optionButtonsTopRow.add(deterministic);
 		
+		String limitFieldToolTip = "Hit enter to register a change";
 		JPanel optionButtonsBottomRow = new JPanel();
 		int textFieldLength = 6;
-		timeField = new JTextField(textFieldLength);
-		timeField.setText(String.valueOf(INIT_TIME_LIMIT));
-		timeField.setHorizontalAlignment(JTextField.RIGHT);
-		timeField.addActionListener(new ActionListener() {
+		timeLimitField = new JTextField(textFieldLength);
+		timeLimitField.setText(String.valueOf(INIT_TIME_LIMIT));
+		timeLimitField.setHorizontalAlignment(JTextField.RIGHT);
+		timeLimitField.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				timeFieldAction();
+				timeLimitFieldAction();
 			}
 		});
-		depthField = new JTextField(textFieldLength);
-		depthField.setText(String.valueOf(INIT_DEPTH_LIMIT));
-		depthField.setHorizontalAlignment(JTextField.RIGHT);
-		depthField.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent arg0) {
-				depthFieldAction();
-			}
-		});
+		timeLimitField.setToolTipText(limitFieldToolTip);
 		JLabel ms = new JLabel("ms");
+		depthLimitField = new JTextField(textFieldLength);
+		depthLimitField.setText(String.valueOf(INIT_DEPTH_LIMIT));
+		depthLimitField.setHorizontalAlignment(JTextField.RIGHT);
+		depthLimitField.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				depthLimitFieldAction();
+			}
+		});
+		depthLimitField.setToolTipText(limitFieldToolTip);
 		
 		timeLimitedRadioButton = new JRadioButton("TIME LIMITED");
 		timeLimitedRadioButton.setSelected(INIT_TIME_LIMITED);
@@ -158,22 +162,24 @@ public class GameView implements View {
 			@Override
 			public void itemStateChanged(ItemEvent e) {
 				if (timeLimitedRadioButton.isSelected()) {
-					timeFieldAction();
+					timeLimitFieldAction();
 					gc.setTimeLimitedAi(true);
 				}
 			}
 		});
+		timeLimitedRadioButton.setToolTipText("The computer chooses a move within the time specified");
 		depthLimitedRadioButton = new JRadioButton("DEPTH LIMITED");
 		depthLimitedRadioButton.setSelected(!INIT_TIME_LIMITED);
 		depthLimitedRadioButton.addItemListener(new ItemListener() {
 			@Override
 			public void itemStateChanged(ItemEvent e) {
 				if (depthLimitedRadioButton.isSelected()) {
-					depthFieldAction();
+					depthLimitFieldAction();
 					gc.setTimeLimitedAi(false);
 				}
 			}
 		});
+		depthLimitedRadioButton.setToolTipText("The computer looks a maximum of the specified moves ahead");
 		
 		ButtonGroup aiSearchLimits = new ButtonGroup();
 		aiSearchLimits.add(timeLimitedRadioButton);
@@ -181,11 +187,11 @@ public class GameView implements View {
 		
 		JPanel timeLimitedPanel = new JPanel();
 		timeLimitedPanel.add(timeLimitedRadioButton);
-		timeLimitedPanel.add(timeField);
+		timeLimitedPanel.add(timeLimitField);
 		timeLimitedPanel.add(ms);
 		JPanel depthLimitedPanel = new JPanel();
 		depthLimitedPanel.add(depthLimitedRadioButton);
-		depthLimitedPanel.add(depthField);
+		depthLimitedPanel.add(depthLimitField);
 		
 		optionButtonsBottomRow.add(timeLimitedPanel);
 		optionButtonsBottomRow.add(depthLimitedPanel);
@@ -254,30 +260,30 @@ public class GameView implements View {
 		return button;
 	}
 		
-	private void timeFieldAction() {
+	private void timeLimitFieldAction() {
 		long timeLimit;
 		try {
-			timeLimit = Long.parseLong(timeField.getText());
+			timeLimit = Long.parseLong(timeLimitField.getText());
 			if (timeLimit <= 0) {
 				throw new NumberFormatException();
 			}
 		} catch(NumberFormatException e1) {
 			timeLimit = INIT_TIME_LIMIT;
-			timeField.setText(String.valueOf(timeLimit));
+			timeLimitField.setText(String.valueOf(timeLimit));
 		}
 		gc.setAiTimeLimit(timeLimit);
 	}
 	
-	private void depthFieldAction() {
+	private void depthLimitFieldAction() {
 		int depthLimit;
 		try {
-			depthLimit = Integer.parseInt(depthField.getText());
+			depthLimit = Integer.parseInt(depthLimitField.getText());
 			if (depthLimit <= 0) {
 				throw new NumberFormatException();
 			}
 		} catch(NumberFormatException e1) {
 			depthLimit = INIT_DEPTH_LIMIT;
-			depthField.setText(String.valueOf(depthLimit));
+			depthLimitField.setText(String.valueOf(depthLimit));
 		}
 		gc.setAiDepthLimit(depthLimit);
 	}
@@ -307,9 +313,9 @@ public class GameView implements View {
 		undoButton.setEnabled(enabled);
 		deterministic.setEnabled(enabled);
 		timeLimitedRadioButton.setEnabled(enabled);
-		timeField.setEnabled(enabled);
+		timeLimitField.setEnabled(enabled);
 		depthLimitedRadioButton.setEnabled(enabled);
-		depthField.setEnabled(enabled);
+		depthLimitField.setEnabled(enabled);
 	}
 
 	@Override
