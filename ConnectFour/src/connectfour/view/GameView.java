@@ -10,6 +10,7 @@ import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
+import java.lang.reflect.InvocationTargetException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -301,11 +302,17 @@ public class GameView implements View {
 		depthLimitField.setEnabled(enabled);
 	}
 
-	private void executeOnEdt(Runnable r) {
+	private void executeSyncOnEdt(Runnable r) {
 		if (SwingUtilities.isEventDispatchThread()) {
 			r.run();
 		} else {
-			SwingUtilities.invokeLater(r);
+			try {
+				SwingUtilities.invokeAndWait(r);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			} catch (InvocationTargetException e) {
+				e.printStackTrace();
+			}
 		}
 	}
 	
@@ -318,7 +325,7 @@ public class GameView implements View {
 	
 	@Override
 	public void onCounterPlaced() {
-		executeOnEdt(counterPlacedRunnable);
+		executeSyncOnEdt(counterPlacedRunnable);
 	}
 	
 	private Runnable resetRunnable = new Runnable() {
@@ -332,7 +339,7 @@ public class GameView implements View {
 	
 	@Override
 	public void onReset() {
-		executeOnEdt(resetRunnable);
+		executeSyncOnEdt(resetRunnable);
 	}
 
 	private Runnable undoRunnable = new Runnable() {
@@ -348,7 +355,7 @@ public class GameView implements View {
 	
 	@Override
 	public void onUndo() {
-		executeOnEdt(undoRunnable);
+		executeSyncOnEdt(undoRunnable);
 	}
 	
 	private Runnable computerStartMoveRunnable = new Runnable() {
@@ -361,7 +368,7 @@ public class GameView implements View {
 	
 	@Override
 	public void onComputerStartMove() {
-		executeOnEdt(computerStartMoveRunnable);
+		executeSyncOnEdt(computerStartMoveRunnable);
 	}
 	
 	private Runnable computerEndMoveRunnable = new Runnable() {
@@ -379,7 +386,7 @@ public class GameView implements View {
 	
 	@Override
 	public void onComputerEndMove() {
-		executeOnEdt(computerEndMoveRunnable);
+		executeSyncOnEdt(computerEndMoveRunnable);
 	}
 	
 	private Runnable humanStartMoveRunnable = new Runnable() {
@@ -390,7 +397,7 @@ public class GameView implements View {
 	
 	@Override
 	public void onHumanStartMove() {
-		executeOnEdt(humanStartMoveRunnable);
+		executeSyncOnEdt(humanStartMoveRunnable);
 	}
 	
 	private Runnable humanEndMoveRunnable = new Runnable() {
@@ -406,7 +413,7 @@ public class GameView implements View {
 	
 	@Override
 	public void onHumanEndMove() {
-		executeOnEdt(humanEndMoveRunnable);
+		executeSyncOnEdt(humanEndMoveRunnable);
 	}
 	
 }
