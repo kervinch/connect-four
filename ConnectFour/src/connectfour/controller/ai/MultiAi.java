@@ -1,6 +1,7 @@
 package connectfour.controller.ai;
 
 import connectfour.controller.ai.abstrakt.AbstractAi;
+import connectfour.controller.ai.abstrakt.AbstractLimitedAi;
 import connectfour.controller.ai.sub.DetDepthLimitedAi;
 import connectfour.controller.ai.sub.DetTimeLimitedAi;
 import connectfour.controller.ai.sub.RandDepthLimitedAi;
@@ -9,10 +10,10 @@ import connectfour.model.Model;
 
 public class MultiAi implements Ai {
 
-	private AbstractAi detDepthLimitedAi;
-	private AbstractAi detTimeLimitedAi;
-	private AbstractAi randDepthLimitedAi;
-	private AbstractAi randTimeLimitedAi;
+	private AbstractLimitedAi detDepthLimitedAi;
+	private AbstractLimitedAi detTimeLimitedAi;
+	private AbstractLimitedAi randDepthLimitedAi;
+	private AbstractLimitedAi randTimeLimitedAi;
 
 	private AbstractAi resolvedAi;
 

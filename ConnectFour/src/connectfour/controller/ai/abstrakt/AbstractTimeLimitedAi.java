@@ -2,7 +2,7 @@ package connectfour.controller.ai.abstrakt;
 
 import connectfour.model.Model;
 
-public abstract class AbstractTimeLimitedAi extends AbstractAi {
+public abstract class AbstractTimeLimitedAi extends AbstractLimitedAi {
 
 	private long timeLimit;
 	protected long initialTime;

@@ -2,7 +2,7 @@ package connectfour.controller.ai.abstrakt;
 
 import connectfour.model.Model;
 
-public abstract class AbstractDepthLimitedAi extends AbstractAi {
+public abstract class AbstractDepthLimitedAi extends AbstractLimitedAi {
 
 	protected int depthLimit;// how many moves in the future to look - 0 at tree
 								// root

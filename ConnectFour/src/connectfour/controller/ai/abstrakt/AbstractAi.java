@@ -16,9 +16,7 @@ public abstract class AbstractAi {
 		this.isStopSignaled = true;
 		System.out.println("computer stop signaled");
 	}
-	
-	public abstract void setLimit(Object limit);
-	
+
 	public abstract int move();
 	
 }
