@@ -22,3 +22,5 @@ I have since improved it and added many new features such as:
 	 deeper as the game progresses
 	-computer chooses moves asynchronously - this stops UI freezing when computer is making a move
 	-refactored code to MVC design pattern
+	-added depth discounting for the value of moves in the search tree - this makes the Ai defer a loss for
+	 as long as possible and take a win as soon as possible
