@@ -51,7 +51,7 @@ public class RandTimeLimitedAi extends AbstractTimeLimitedAi {
 			return null;
 		}
 		if (boardCopy.gameOver() || depth == timeLimitedSearchDepth) {
-			int util = sign * boardCopy.getAnalysis(counter);
+			int util = (int) (Math.pow(discountFactor, depth) * sign * boardCopy.getAnalysis(counter));
 			return new ValCol(util, -1);// col doesn't matter since search depth
 										// will never be 0
 		}
